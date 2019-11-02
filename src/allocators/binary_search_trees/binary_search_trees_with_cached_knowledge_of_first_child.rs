@@ -1,8 +1,8 @@
-use std::fmt::Formatter;
-use std::fmt;
 use crate::extensions::prelude::*;
-use std::mem::size_of;
 use std::cmp::max;
+use std::fmt;
+use std::fmt::Formatter;
+use std::mem::size_of;
 
 use std::cell::UnsafeCell;
 use std::num::NonZeroUsize;

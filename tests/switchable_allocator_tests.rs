@@ -11,8 +11,8 @@ mod switchable_allocator_tests {
     use allocator_suite::switchable_allocator;
 
     // General imports
-    use std::alloc::System;
     use allocator_suite::adaptors::prelude::*;
+    use std::alloc::System;
 
     switchable_allocator!(
         ApplicationAllocator,

@@ -1,10 +1,9 @@
 #![feature(test)]
 
-
 extern crate test;
 
 #[cfg(test)]
-mod switchable_allocator_tests {
+mod standard_perf {
     // Import bencher
     use test::Bencher;
 
@@ -14,7 +13,7 @@ mod switchable_allocator_tests {
 
         #[global_allocator]
         static GLOBAL: System = System;
-        
+
         b.iter(|| {
             let mut vec = Vec::<usize>::with_capacity(10_000_000);
             (0..1_000_000).for_each(|_| {

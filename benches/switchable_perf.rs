@@ -1,5 +1,4 @@
 #![feature(test)]
-
 #![feature(allocator_api)]
 #![feature(extern_types)]
 #![feature(core_intrinsics)]
@@ -10,7 +9,7 @@
 extern crate test;
 
 #[cfg(test)]
-mod switchable_allocator_tests {
+mod switchable_perf {
     // Import bencher
     use test::Bencher;
 
@@ -20,8 +19,8 @@ mod switchable_allocator_tests {
         use allocator_suite::switchable_allocator;
 
         // General imports
-        use std::alloc::System;
         use allocator_suite::adaptors::prelude::*;
+        use std::alloc::System;
 
         switchable_allocator!(
             ApplicationAllocator,
