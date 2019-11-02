@@ -1,5 +1,5 @@
 use crate::adaptors::allocator_adaptor::AllocatorAdaptor;
-use crate::adaptors::prelude::*;
+
 use crate::extensions::non_null_pointer::non_null_pointer;
 use crate::extensions::prelude::*;
 use crate::extensions::usize_ext::UsizeExt;

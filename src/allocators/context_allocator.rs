@@ -4,7 +4,7 @@ use crate::allocators::bump_allocator::BumpAllocator;
 use crate::allocators::global::local_allocator::LocalAllocator;
 use crate::allocators::global::memory_range::MemoryRange;
 use crate::allocators::multiple_binary_search_tree_allocator::MultipleBinarySearchTreeAllocator;
-use crate::allocators::prelude::*;
+
 use crate::memory_address::MemoryAddress;
 use crate::memory_sources::memory_source::MemorySource;
 use std::alloc::AllocErr;
