@@ -1,0 +1,22 @@
+[package]
+name = "allocator-suite"
+version = "0.1.0"
+authors = ["Mahmut Bulut <vertexclique@gmail.com>"]
+description = "Allocator Suite for various allocation types"
+keywords = ["allocator", "memory", "memory-management", "mmap", "numa"]
+categories = ["memory-management", "caching"]
+homepage = "https://github.com/bastion-rs/bastion"
+repository = "https://github.com/bastion-rs/bastion"
+documentation = "https://docs.rs/bastion"
+readme = "README.md"
+license = "Apache-2.0/MIT"
+edition = "2018"
+
+[dependencies]
+either = "^1.5"
+
+[target.'cfg(unix)'.dependencies]
+libc = "^0.2.50"
+
+[target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
+syscall-alt = "^0.0.14"
