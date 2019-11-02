@@ -1,4 +1,4 @@
-use std::mem::size_of;
+
 
 /// NUMA nodes to allocate on.
 ///

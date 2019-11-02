@@ -516,21 +516,21 @@ mod MultipleBinarySearchTreeAllocatorTests {
 
     #[test]
     pub fn shrink_allocation_within_block() {
-        const AllocationSize: usize = 32;
-        const MemoryPattern: [u8; AllocationSize] = [0x0A; AllocationSize];
+        const ALLOCATION_SIZE: usize = 32;
+        const MEMORY_PATTERN: [u8; ALLOCATION_SIZE] = [0x0A; ALLOCATION_SIZE];
 
         let allocator = new_allocator(256);
 
         let allocation = allocator
-            .allocate(AllocationSize.non_zero(), 8.non_zero())
+            .allocate(ALLOCATION_SIZE.non_zero(), 8.non_zero())
             .expect(&format!("Did not allocate"));
-        allocation.write(MemoryPattern);
+        allocation.write(MEMORY_PATTERN);
 
         let reallocation = allocator
             .shrinking_reallocate(
                 16.non_zero(),
                 8.non_zero(),
-                AllocationSize.non_zero(),
+                ALLOCATION_SIZE.non_zero(),
                 allocation,
             )
             .expect(&format!("Did not reallocate"));
@@ -539,8 +539,8 @@ mod MultipleBinarySearchTreeAllocatorTests {
             "Did not shrink allocation within block"
         );
         assert_eq!(
-            reallocation.read::<[u8; AllocationSize]>(),
-            MemoryPattern,
+            reallocation.read::<[u8; ALLOCATION_SIZE]>(),
+            MEMORY_PATTERN,
             "Did not preserve memory contents when shrinking block"
         );
     }
@@ -575,21 +575,21 @@ mod MultipleBinarySearchTreeAllocatorTests {
 
     #[test]
     pub fn grow_allocation_into_larger_block() {
-        const AllocationSize: usize = 32;
-        const MemoryPattern: [u8; AllocationSize] = [0x0A; AllocationSize];
+        const ALLOCATION_SIZE: usize = 32;
+        const MEMORY_PATTERN: [u8; ALLOCATION_SIZE] = [0x0A; ALLOCATION_SIZE];
 
         let allocator = new_allocator(64);
 
         let allocation = allocator
-            .allocate(AllocationSize.non_zero(), 8.non_zero())
+            .allocate(ALLOCATION_SIZE.non_zero(), 8.non_zero())
             .expect(&format!("Did not allocate"));
-        allocation.write(MemoryPattern);
+        allocation.write(MEMORY_PATTERN);
 
         let reallocation = allocator
             .growing_reallocate(
-                (AllocationSize + 1).non_zero(),
+                (ALLOCATION_SIZE + 1).non_zero(),
                 8.non_zero(),
-                AllocationSize.non_zero(),
+                ALLOCATION_SIZE.non_zero(),
                 allocation,
             )
             .expect(&format!("Did not reallocate"));
@@ -598,25 +598,25 @@ mod MultipleBinarySearchTreeAllocatorTests {
             "Did not shrink allocation within block"
         );
         assert_eq!(
-            reallocation.read::<[u8; AllocationSize]>(),
-            MemoryPattern,
+            reallocation.read::<[u8; ALLOCATION_SIZE]>(),
+            MEMORY_PATTERN,
             "Did not preserve memory contents when growing block"
         );
     }
 
     #[test]
     pub fn deallocation() {
-        const AllocationSize: usize = 31;
+        const ALLOCATION_SIZE: usize = 31;
 
         let allocator = new_allocator(32);
         let allocation = allocator
-            .allocate(AllocationSize.non_zero(), 8.non_zero())
+            .allocate(ALLOCATION_SIZE.non_zero(), 8.non_zero())
             .expect(&format!("Did not allocate"));
         assert_allocator_is_empty(&allocator);
 
-        allocator.deallocate(AllocationSize.non_zero(), 8.non_zero(), allocation);
+        allocator.deallocate(ALLOCATION_SIZE.non_zero(), 8.non_zero(), allocation);
         let _allocation = allocator
-            .allocate(AllocationSize.non_zero(), 8.non_zero())
+            .allocate(ALLOCATION_SIZE.non_zero(), 8.non_zero())
             .expect(&format!("Did not allocate"));
         assert_allocator_is_empty(&allocator);
     }
@@ -624,7 +624,7 @@ mod MultipleBinarySearchTreeAllocatorTests {
     fn test_repeated_small_allocations(memory_size: usize) {
         let allocator = new_allocator(memory_size);
 
-        for allocation_loop_count in 0..memory_size / SmallestAllocation {
+        for allocation_loop_count in 0..memory_size / SMALLEST_ALLOCATION {
             let _ = allocator
                 .allocate(1.non_zero(), 1.non_zero())
                 .expect(&format!(
@@ -650,6 +650,6 @@ mod MultipleBinarySearchTreeAllocatorTests {
         allocator
     }
 
-    const SmallestAllocation: usize =
+    const SMALLEST_ALLOCATION: usize =
         BinarySearchTreesWithCachedKnowledgeOfFirstChild::MINIMUM_ALLOCATION_SIZE.get();
 }
