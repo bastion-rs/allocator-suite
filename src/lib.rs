@@ -14,6 +14,7 @@ pub mod likeliness;
 pub mod adaptors;
 
 /// Allocators.
+#[macro_use]
 pub mod allocators;
 
 /// Extensions useful for working with memory; not a stable part of the API of this crate.
@@ -27,12 +28,30 @@ pub mod memory_address;
 
 pub mod prelude {
     pub use crate::adaptors::*;
+    pub use crate::adaptors::prelude::*;
+
     pub use crate::allocators::*;
+    pub use crate::allocators::prelude::*;
+
     pub use crate::extensions::*;
+
     pub use crate::likeliness::*;
+    pub use crate::likeliness::prelude::*;
+
     pub use crate::memory_address::*;
+
     pub use crate::memory_sources::*;
+    pub use crate::memory_sources::prelude::*;
 
     /// Expose tree structures
     pub use crate::allocators::binary_search_trees::*;
+    pub use crate::allocators::binary_search_trees::prelude::*;
+
+    // Expose macros
+    pub use crate::switchable_allocator;
+    pub use crate::alloc;
+    pub use crate::global_alloc;
+    pub use crate::likely;
+    pub use crate::unlikely;
+    pub use crate::choose_allocator;
 }

@@ -13,9 +13,11 @@ pub mod context_allocator;
 pub mod memory_map_allocator;
 pub mod multiple_binary_search_tree_allocator;
 
+#[macro_use]
 pub mod prelude {
     pub use super::binary_search_trees::*;
     pub use super::bit_set::*;
+    #[macro_use]
     pub use super::global::*;
 
     pub use super::allocator::*;

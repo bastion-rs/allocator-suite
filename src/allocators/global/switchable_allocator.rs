@@ -8,7 +8,7 @@
 /// * `$GlobalAllocator`: the type of the thread local allocator. Must implement `Allocator`; a common usage is `GlobalAllocToAllocatorAdaptor<System>`.
 /// * `global_allocator_instance`: a constant expression for instantiating the global allocator. A common usage is `GlobalAllocToAllocatorAdaptor(System)`.
 ///
-/// To access the switchable allocator, call `$mod_name::global_thread_and_coroutine_switchable_allocator()`; this returns an object reference that implements the trait `GlobalThreadAndCoroutineSwitchableAllocator`.
+/// To access the switchable allocator, call `$mod_name::global_thread_and_coroutine_switchable_allocator()`; this returns an object reference that implements the trait `GlobalSwitchableAllocator`.
 ///
 /// Done using a macro due to a limitation when combining thread-local statics with generics (which could be solved using pthread keys, but these aren't always the most efficient of approaches); in essence, a thread-local struct field is needed.
 ///
@@ -16,29 +16,37 @@
 ///
 /// ```Rust
 ///
-/// switchable_allocator!(MyGlobalAllocator, BumpAllocator<ArenaMemorySource<MemoryMapSource>>, MultipleBinarySearchTreeAllocator<MemoryMapSource>, GlobalAllocToAllocatorAdaptor<System>, GlobalAllocToAllocatorAdaptor(System));
+/// switchable_allocator!(ApplicationAllocator, BumpAllocator<ArenaMemorySource<MemoryMapSource>>, MultipleBinarySearchTreeAllocator<MemoryMapSource>, GlobalAllocToAllocatorAdaptor<System>, GlobalAllocToAllocatorAdaptor(System));
 ///
-/// ...
 ///
-/// let global = MyGlobalAllocator::switchable_allocator();
-///
-/// ...
+/// let global = ApplicationAllocator::switchable_allocator();
 ///
 /// ```
 #[macro_export]
 macro_rules! switchable_allocator {
     ($mod_name: ident, $CoroutineLocalAllocator: ty, $ThreadLocalAllocator: ty, $GlobalAllocator: ty, $global_allocator_instance: expr) => {
         #[global_allocator]
-        static GLOBAL: $mod_name::GlobalThreadAndCoroutineSwitchableAllocatorInstance =
-            $mod_name::GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+        pub(crate) static GLOBAL: $mod_name::SwitchableAllocator =
+            $mod_name::SwitchableAllocator {
                 global_allocator: $global_allocator_instance,
             };
 
         pub(crate) mod $mod_name {
-            use ::std::mem::replace;
-            use $crate::*;
+            /// Embeddable macros first
+            use allocator_suite::prelude::*;
 
-            /// Effectively this is a field of `GlobalThreadAndCoroutineSwitchableAllocatorInstance` with a different value for each thread.
+            /// All allocator related imports, users can use anything.
+            use allocator_suite::adaptors::prelude::*;
+            use allocator_suite::allocators::prelude::*;
+            use allocator_suite::allocators::global::prelude::*;
+            use allocator_suite::memory_sources::prelude::*;
+
+            /// Std imports
+            use std::num::NonZeroUsize;
+            use std::alloc::{Alloc, AllocErr, CannotReallocInPlace, Excess, GlobalAlloc, Layout, System};
+            use std::mem::replace;
+
+            /// Effectively this is a field of `SwitchableAllocator` with a different value for each thread.
             ///
             /// It is this piece of logic that necessitates this macro definition.
             #[thread_local]
@@ -48,28 +56,28 @@ macro_rules! switchable_allocator {
             > = PerThreadState::empty();
 
             #[derive(Debug)]
-            pub(crate) struct GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+            pub(crate) struct SwitchableAllocator {
                 pub(crate) global_allocator: $GlobalAllocator,
             }
 
-            unsafe impl Sync for GlobalThreadAndCoroutineSwitchableAllocatorInstance {}
+            unsafe impl Sync for SwitchableAllocator {}
 
-            unsafe impl GlobalAlloc for GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+            unsafe impl GlobalAlloc for SwitchableAllocator {
                 global_alloc!();
             }
 
-            unsafe impl Alloc for GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+            unsafe impl Alloc for SwitchableAllocator {
                 alloc!();
             }
 
-            impl Allocator for GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+            impl Allocator for SwitchableAllocator {
                 #[inline(always)]
                 fn allocate(
                     &self,
                     non_zero_size: NonZeroUsize,
                     non_zero_power_of_two_alignment: NonZeroUsize,
                 ) -> Result<MemoryAddress, AllocErr> {
-                    use self::CurrentAllocatorInUse::*;
+                    use allocator_suite::allocators::global::current_allocator_in_use::CurrentAllocatorInUse::*;
 
                     match self.save_current_allocator_in_use() {
                         CoroutineLocal => self
@@ -144,8 +152,8 @@ macro_rules! switchable_allocator {
                 }
             }
 
-            impl GlobalThreadAndCoroutineSwitchableAllocator
-                for GlobalThreadAndCoroutineSwitchableAllocatorInstance
+            impl GlobalSwitchableAllocator
+                for SwitchableAllocator
             {
                 type CoroutineLocalAllocator = $CoroutineLocalAllocator;
 
