@@ -3,7 +3,7 @@ use super::extensions::prelude::*;
 use crate::allocators::bit_set::bits_in_a_byte::BitsInAByte;
 use crate::allocators::bit_set::number_of_bits::NumberOfBits;
 use std::num::NonZeroUsize;
-use std::num::NonZeroU32;
+
 use std::fmt::Debug;
 
 #[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]

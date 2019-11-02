@@ -7,7 +7,7 @@ use std::intrinsics::transmute;
 use super::allocators::global::prelude::*;
 use super::extensions::prelude::*;
 use std::num::NonZeroUsize;
-use std::num::NonZeroU32;
+
 use std::fmt::Debug;
 
 /// This is a very simple bump allocator of minimal utility.

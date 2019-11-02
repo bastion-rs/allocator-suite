@@ -1,8 +1,8 @@
 use std::alloc::Layout;
 use std::intrinsics::transmute;
 use std::num::NonZeroUsize;
-use std::num::NonZeroU32;
-use std::fmt::Debug;
+
+
 
 /// Deliberately structured like Layout to provide access to fields.
 pub(crate) struct LayoutHack

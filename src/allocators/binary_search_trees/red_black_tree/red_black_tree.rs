@@ -5,6 +5,7 @@ use std::collections::Bound;
 use crate::allocators::binary_search_trees::red_black_tree::color::Color;
 use std::ops::Bound::*;
 use crate::extensions::non_null_u8_node_pointer::NonNullU8NodePointer;
+use std::cmp::Ordering;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct RedBlackTree
@@ -182,9 +183,9 @@ impl RedBlackTree
 		{
 			match key.cmp(&tree.key())
 			{
-				Less => tree = tree.left(),
-				Equal => return tree,
-				Greater => tree = tree.right(),
+				Ordering::Less => tree = tree.left(),
+                Ordering::Equal => return tree,
+                Ordering::Greater => tree = tree.right(),
 			}
 		}
 

@@ -11,7 +11,7 @@ use std::ptr::NonNull;
 use super::allocators::binary_search_trees::red_black_tree::node_pointer::NodePointer;
 use super::allocators::binary_search_trees::binary_search_tree_with_cached_knowledge_of_first_child::BinarySearchTreeWithCachedKnowledgeOfFirstChild;
 use std::num::NonZeroUsize;
-use std::num::NonZeroU32;
+
 use std::fmt::Debug;
 use crate::extensions::non_zero_usize_ext::NonZeroUsizeExt;
 use crate::extensions::non_null_u8_ext::NonNullU8Ext;

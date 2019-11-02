@@ -1,9 +1,9 @@
 use std::ops::Deref;
 use std::alloc::{GlobalAlloc, Alloc, AllocErr, Layout, Excess, CannotReallocInPlace};
 use crate::memory_address::MemoryAddress;
-use super::extensions::prelude::*;
+
 use crate::allocators::allocator::Allocator;
-use super::global_alloc::*;
+
 use std::num::NonZeroUsize;
 
 

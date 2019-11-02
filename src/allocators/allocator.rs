@@ -5,7 +5,7 @@ use std::alloc::{Layout, AllocErr, Excess, CannotReallocInPlace};
 use super::extensions::prelude::*;
 use std::ptr::{null_mut, NonNull};
 use std::num::NonZeroUsize;
-use std::num::NonZeroU32;
+
 use std::fmt::Debug;
 
 

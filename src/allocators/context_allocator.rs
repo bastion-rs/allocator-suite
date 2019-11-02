@@ -6,7 +6,7 @@ use super::allocators::global::local_allocator::LocalAllocator;
 use super::allocators::global::memory_range::MemoryRange;
 use super::allocators::prelude::bit_set_allocator::BitSetAllocator;
 use std::num::NonZeroUsize;
-use std::num::NonZeroU32;
+
 use std::fmt::Debug;
 
 /// An allocator designed for contexts with different lifetimes.
