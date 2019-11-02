@@ -1,7 +1,7 @@
-use crate::allocators::binary_search_trees::red_black_tree::prelude::*;
-use crate::memory_address::MemoryAddress;
-use crate::allocators::binary_search_trees::red_black_tree::red_black_tree::RedBlackTree;
 use crate::allocators::binary_search_trees::red_black_tree::node_pointer::NodePointer;
+use crate::allocators::binary_search_trees::red_black_tree::prelude::*;
+use crate::allocators::binary_search_trees::red_black_tree::red_black_tree::RedBlackTree;
+use crate::memory_address::MemoryAddress;
 
 /// An iterator over references to the items of a `RedBlackTree`.
 ///

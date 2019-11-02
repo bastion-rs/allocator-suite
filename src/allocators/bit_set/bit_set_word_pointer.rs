@@ -13,10 +13,10 @@ impl BitSetWordPointer {
     #[inline(always)]
     pub(crate) fn wrap(memory_address: MemoryAddress) -> Self {
         debug_assert_eq!(
-			memory_address.to_usize() % BitSetWord::SIZE_IN_BYTES,
-			0,
-			"memory_address `{:?}` must be a multiple of 8",
-			memory_address
+            memory_address.to_usize() % BitSetWord::SIZE_IN_BYTES,
+            0,
+            "memory_address `{:?}` must be a multiple of 8",
+            memory_address
         );
 
         Self(memory_address.cast::<BitSetWord>())
@@ -126,10 +126,10 @@ impl BitSetWordPointer {
         let number_of_bytes = number_of_bytes.0;
 
         debug_assert_eq!(
-			number_of_bytes % BitSetWord::SIZE_IN_BYTES,
-			0,
-			"number_of_bytes `{:?}` is not a multiple of the size of an u64",
-			number_of_bytes
+            number_of_bytes % BitSetWord::SIZE_IN_BYTES,
+            0,
+            "number_of_bytes `{:?}` is not a multiple of the size of an u64",
+            number_of_bytes
         );
 
         Self(
@@ -144,10 +144,10 @@ impl BitSetWordPointer {
         let number_of_bytes = number_of_bytes.0;
 
         debug_assert_eq!(
-			number_of_bytes % BitSetWord::SIZE_IN_BYTES,
-			0,
-			"number_of_bytes `{:?}` is not a multiple of the size of an u64",
-			number_of_bytes
+            number_of_bytes % BitSetWord::SIZE_IN_BYTES,
+            0,
+            "number_of_bytes `{:?}` is not a multiple of the size of an u64",
+            number_of_bytes
         );
 
         Self(

@@ -1,14 +1,14 @@
+use crate::adaptors::allocator_adaptor::AllocatorAdaptor;
 use crate::adaptors::prelude::*;
+use crate::extensions::non_null_pointer::non_null_pointer;
 use crate::extensions::prelude::*;
+use crate::extensions::usize_ext::UsizeExt;
 use crate::memory_address::MemoryAddress;
 use std::alloc::{AllocErr, CannotReallocInPlace, Excess, Layout};
+use std::fmt::Debug;
 use std::intrinsics::transmute;
 use std::num::NonZeroUsize;
 use std::ptr::{null_mut, NonNull};
-use crate::adaptors::allocator_adaptor::AllocatorAdaptor;
-use std::fmt::Debug;
-use crate::extensions::non_null_pointer::non_null_pointer;
-use crate::extensions::usize_ext::UsizeExt;
 
 /// A helper trait that brings together the core, common functionality required to implement the traits `GlobalAlloc` and `Alloc`.
 pub trait Allocator: Debug + Sized {
@@ -190,7 +190,12 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn global_alloc_realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+    unsafe fn global_alloc_realloc(
+        &self,
+        ptr: *mut u8,
+        layout: Layout,
+        new_size: usize,
+    ) -> *mut u8 {
         debug_assert_ne!(ptr, null_mut(), "ptr should never be null");
 
         transmute(self.reallocate(NonNull::new_unchecked(ptr), layout, new_size))

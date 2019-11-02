@@ -1,9 +1,9 @@
-use crate::extensions::prelude::*;
 use crate::allocators::bit_set::bits_in_a_byte::BITS_IN_A_BYTE;
 use crate::allocators::bit_set::number_of_bits::NumberOfBits;
+use crate::extensions::prelude::*;
+use crate::extensions::usize_ext::UsizeExt;
 use std::num::NonZeroUsize;
 use std::ops::Sub;
-use crate::extensions::usize_ext::UsizeExt;
 
 use std::fmt::Debug;
 

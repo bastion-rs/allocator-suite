@@ -1,15 +1,15 @@
+use crate::allocators::allocator::Allocator;
+use crate::allocators::bit_set::bit_set_allocator::BitSetAllocator;
+use crate::allocators::bump_allocator::BumpAllocator;
 use crate::allocators::global::local_allocator::LocalAllocator;
+use crate::allocators::global::memory_range::MemoryRange;
+use crate::allocators::multiple_binary_search_tree_allocator::MultipleBinarySearchTreeAllocator;
 use crate::allocators::prelude::*;
 use crate::memory_address::MemoryAddress;
-use std::alloc::AllocErr;
-use std::num::NonZeroUsize;
 use crate::memory_sources::memory_source::MemorySource;
+use std::alloc::AllocErr;
 use std::fmt::Debug;
-use crate::allocators::bump_allocator::BumpAllocator;
-use crate::allocators::multiple_binary_search_tree_allocator::MultipleBinarySearchTreeAllocator;
-use crate::allocators::allocator::Allocator;
-use crate::allocators::global::memory_range::MemoryRange;
-use crate::allocators::bit_set::bit_set_allocator::BitSetAllocator;
+use std::num::NonZeroUsize;
 
 /// An allocator designed for contexts with different lifetimes.
 ///

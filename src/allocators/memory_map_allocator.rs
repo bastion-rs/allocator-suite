@@ -1,10 +1,10 @@
-use std::alloc::AllocErr;
-use std::num::NonZeroUsize;
 use crate::allocators::allocator::Allocator;
-use crate::memory_sources::mmap::memory_map_source::MemoryMapSource;
 use crate::allocators::global::memory_range::MemoryRange;
 use crate::memory_address::MemoryAddress;
+use crate::memory_sources::mmap::memory_map_source::MemoryMapSource;
+use std::alloc::AllocErr;
 use std::fmt::Debug;
+use std::num::NonZeroUsize;
 
 /// This NUMA-aware allocator allocates memory-mapped data, optionally using NUMA policy to allocate on a memory node closest to the current thread.
 ///

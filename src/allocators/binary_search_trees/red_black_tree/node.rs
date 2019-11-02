@@ -1,7 +1,7 @@
-use crate::allocators::binary_search_trees::red_black_tree::node_pointer::NodePointer;
-use std::cell::Cell;
 use crate::allocators::binary_search_trees::red_black_tree::color::Color;
+use crate::allocators::binary_search_trees::red_black_tree::node_pointer::NodePointer;
 use crate::allocators::binary_search_trees::red_black_tree::parent_and_color::ParentAndColor;
+use std::cell::Cell;
 
 // TODO: Save memory be using compressed (32-bit) pointers.
 #[repr(align(32))]

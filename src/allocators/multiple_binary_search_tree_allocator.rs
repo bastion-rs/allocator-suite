@@ -1,11 +1,11 @@
-use crate::memory_sources::memory_source::MemorySource;
-use crate::memory_address::MemoryAddress;
-use std::fmt::Formatter;
-use std::fmt;
-use std::alloc::AllocErr;
 use crate::allocators::global::local_allocator::LocalAllocator;
-use std::ptr::NonNull;
+use crate::memory_address::MemoryAddress;
+use crate::memory_sources::memory_source::MemorySource;
+use std::alloc::AllocErr;
+use std::fmt;
+use std::fmt::Formatter;
 use std::num::NonZeroUsize;
+use std::ptr::NonNull;
 
 use crate::extensions::non_null_u8_ext::NonNullU8Ext;
 use crate::extensions::non_zero_usize_ext::NonZeroUsizeExt;

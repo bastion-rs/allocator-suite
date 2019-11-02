@@ -1,5 +1,3 @@
-
-
 /// NUMA nodes to allocate on.
 ///
 /// If set to no nodes (the `Default::default()`) then memory is allocated on the local node if possible.

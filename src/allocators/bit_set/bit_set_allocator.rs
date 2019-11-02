@@ -1,6 +1,3 @@
-use crate::extensions::prelude::*;
-use crate::memory_address::MemoryAddress;
-use crate::memory_sources::memory_source::MemorySource;
 use crate::allocators::allocator::Allocator;
 use crate::allocators::bit_set::absolute_location_in_bit_set::AbsoluteLocationInBitSet;
 use crate::allocators::bit_set::bit_set_word::BitSetWord;
@@ -10,6 +7,9 @@ use crate::allocators::bit_set::number_of_bits::NumberOfBits;
 use crate::allocators::bit_set::number_of_bytes::NumberOfBytes;
 use crate::allocators::global::local_allocator::LocalAllocator;
 use crate::allocators::global::memory_range::MemoryRange;
+use crate::extensions::prelude::*;
+use crate::memory_address::MemoryAddress;
+use crate::memory_sources::memory_source::MemorySource;
 use either::*;
 use std::alloc::AllocErr;
 use std::cell::Cell;
@@ -277,7 +277,8 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
         debug_assert!(block_size.get() >= BitSetWord::SIZE_IN_BYTES, "block_size `{:?}` must at least `{:?}` so that the bit set metadata holding free blocks can be allocated contiguous with the memory used for blocks", block_size, BitSetWord::SIZE_IN_BYTES);
 
         let size_in_bytes = number_of_blocks.get() << block_size.logarithm_base2();
-        let bit_set_size_in_bytes = number_of_blocks.get() / NumberOfBits::IN_BIT_SET_WORD.to_usize();
+        let bit_set_size_in_bytes =
+            number_of_blocks.get() / NumberOfBits::IN_BIT_SET_WORD.to_usize();
         let memory_source_size = (size_in_bytes + bit_set_size_in_bytes).non_zero();
         let allocations_start_from = memory_source.obtain(memory_source_size)?;
 

@@ -66,7 +66,8 @@ impl BinarySearchTreesWithCachedKnowledgeOfFirstChild {
 
     pub(crate) const NUMBER_OF_BINARY_SEARCH_TREES: usize = 16;
 
-    pub(crate) const LARGEST_INCLUSIVE_BINARY_SEARCH_TREE_INDEX: usize = Self::NUMBER_OF_BINARY_SEARCH_TREES - 1;
+    pub(crate) const LARGEST_INCLUSIVE_BINARY_SEARCH_TREE_INDEX: usize =
+        Self::NUMBER_OF_BINARY_SEARCH_TREES - 1;
 
     pub(crate) const LARGEST_INCLUSIVE_POWER_OF_TWO_EXPONENT: NonZeroUsize =
         non_zero_usize(Self::binary_search_tree_index_to_power_of_two_exponent(
