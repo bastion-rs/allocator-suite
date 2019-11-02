@@ -16,10 +16,7 @@
 ///
 /// ```Rust
 ///
-/// switchable_allocator!(ApplicationAllocator, BumpAllocator<ArenaMemorySource<MemoryMapSource>>, MultipleBinarySearchTreeAllocator<MemoryMapSource>, GlobalAllocToAllocatorAdaptor<System>, GlobalAllocToAllocatorAdaptor(System));
-///
-///
-/// let global = ApplicationAllocator::switchable_allocator();
+/// switchable_allocator!(application_allocator, BumpAllocator<ArenaMemorySource<MemoryMapSource>>, MultipleBinarySearchTreeAllocator<MemoryMapSource>, GlobalAllocToAllocatorAdaptor<System>, GlobalAllocToAllocatorAdaptor(System));
 ///
 /// ```
 #[macro_export]

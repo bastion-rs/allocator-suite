@@ -15,7 +15,7 @@ mod switchable_allocator_tests {
     use std::alloc::System;
 
     switchable_allocator!(
-        ApplicationAllocator,
+        application_allocator,
         BumpAllocator<ArenaMemorySource<MemoryMapSource>>,
         MultipleBinarySearchTreeAllocator<MemoryMapSource>,
         GlobalAllocToAllocatorAdaptor<System>,
