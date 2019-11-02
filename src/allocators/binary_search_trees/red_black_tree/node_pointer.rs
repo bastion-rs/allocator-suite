@@ -1,10 +1,12 @@
-use super::allocators::binary_search_trees::red_black_tree::node::Node;
-use super::extensions::prelude::*;
-use super::memory_address::MemoryAddress;
+use crate::extensions::prelude::*;
+use crate::memory_address::MemoryAddress;
 
-use super::allocators::binary_search_trees::red_black_tree::color::Color;
 use std::num::NonZeroUsize;
+use crate::extensions::pointer_mut_ext::PointerMutExt;
+use crate::extensions::pointer_ext::PointerExt;
 use std::ptr::null;
+use crate::allocators::binary_search_trees::red_black_tree::node::Node;
+use crate::allocators::binary_search_trees::red_black_tree::color::Color;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct NodePointer(pub(crate) *const Node);

@@ -29,3 +29,8 @@ pub(crate) mod red_black_tree;
 
 pub mod binary_search_tree_with_cached_knowledge_of_first_child;
 pub mod binary_search_trees_with_cached_knowledge_of_first_child;
+
+pub mod prelude {
+    pub use super::binary_search_tree_with_cached_knowledge_of_first_child::*;
+    pub use super::binary_search_trees_with_cached_knowledge_of_first_child::*;
+}

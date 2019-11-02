@@ -1,6 +1,4 @@
-use super::*;
-
-pub(crate) mod binary_search_trees;
+pub mod binary_search_trees;
 
 /// A bit set based allocator; allows reallocations, but requires a linear scan to find free blocks.
 pub mod bit_set;

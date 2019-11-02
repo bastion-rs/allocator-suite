@@ -1,5 +1,5 @@
-use super::allocators::global::current_allocator_in_use::CurrentAllocatorInUse;
-use super::allocators::global::local_allocator::LocalAllocator;
+use crate::allocators::global::current_allocator_in_use::CurrentAllocatorInUse;
+use crate::allocators::global::local_allocator::LocalAllocator;
 
 #[doc(hidden)]
 #[allow(dead_code)]

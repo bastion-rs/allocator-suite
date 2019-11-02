@@ -32,4 +32,7 @@ pub mod prelude {
     pub use crate::likeliness::*;
     pub use crate::memory_address::*;
     pub use crate::memory_sources::*;
+
+    /// Expose tree structures
+    pub use crate::allocators::binary_search_trees::*;
 }

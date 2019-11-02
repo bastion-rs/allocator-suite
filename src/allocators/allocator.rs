@@ -1,12 +1,14 @@
-use super::adaptors::prelude::*;
-use super::extensions::prelude::*;
-use super::memory_address::MemoryAddress;
+use crate::adaptors::prelude::*;
+use crate::extensions::prelude::*;
+use crate::memory_address::MemoryAddress;
 use std::alloc::{AllocErr, CannotReallocInPlace, Excess, Layout};
 use std::intrinsics::transmute;
 use std::num::NonZeroUsize;
 use std::ptr::{null_mut, NonNull};
-
+use crate::adaptors::allocator_adaptor::AllocatorAdaptor;
 use std::fmt::Debug;
+use crate::extensions::non_null_pointer::non_null_pointer;
+use crate::extensions::usize_ext::UsizeExt;
 
 /// A helper trait that brings together the core, common functionality required to implement the traits `GlobalAlloc` and `Alloc`.
 pub trait Allocator: Debug + Sized {

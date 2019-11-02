@@ -1,6 +1,6 @@
-use super::extensions::prelude::*;
-use super::memory_address::MemoryAddress;
-use super::memory_sources::memory_source::MemorySource;
+use crate::extensions::prelude::*;
+use crate::memory_address::MemoryAddress;
+use crate::memory_sources::memory_source::MemorySource;
 use crate::allocators::allocator::Allocator;
 use crate::allocators::bit_set::absolute_location_in_bit_set::AbsoluteLocationInBitSet;
 use crate::allocators::bit_set::bit_set_word::BitSetWord;

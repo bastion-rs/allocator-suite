@@ -1,15 +1,21 @@
 use std::fmt::Formatter;
 use std::fmt;
-use super::extensions::prelude::*;
+use crate::extensions::prelude::*;
 use std::mem::size_of;
 use std::cmp::max;
-use super::allocators::binary_search_trees::binary_search_tree_with_cached_knowledge_of_first_child::BinarySearchTreeWithCachedKnowledgeOfFirstChild;
-use super::allocators::binary_search_trees::red_black_tree::prelude::*;
+use crate::allocators::binary_search_trees::red_black_tree::prelude::*;
 use std::cell::UnsafeCell;
 use std::num::NonZeroUsize;
 use std::fmt::Debug;
+use crate::extensions::non_zero_usize::non_zero_usize;
+use crate::allocators::binary_search_trees::red_black_tree::node::Node;
+use crate::extensions::logarithm_base2_as_usize::logarithm_base2_as_usize;
+use crate::extensions::usize_ext::UsizeExt;
+use crate::extensions::non_zero_usize_ext::NonZeroUsizeExt;
+use crate::extensions::pointer_mut_ext::PointerMutExt;
+use crate::allocators::binary_search_trees::binary_search_tree_with_cached_knowledge_of_first_child::BinarySearchTreeWithCachedKnowledgeOfFirstChild;
 
-pub(crate) struct BinarySearchTreesWithCachedKnowledgeOfFirstChild {
+pub struct BinarySearchTreesWithCachedKnowledgeOfFirstChild {
     binary_search_trees_of_free_blocks_sorted_by_ascending_memory_address_and_indexed_by_power_of_two_exponent_less_smallest_power_of_two:
         [UnsafeCell<BinarySearchTreeWithCachedKnowledgeOfFirstChild>;
             Self::NUMBER_OF_BINARY_SEARCH_TREES],
@@ -55,27 +61,27 @@ impl Default for BinarySearchTreesWithCachedKnowledgeOfFirstChild {
 }
 
 impl BinarySearchTreesWithCachedKnowledgeOfFirstChild {
-    const SMALLEST_INCLUSIVE_POWER_OF_TWO_EXPONENT: NonZeroUsize =
+    pub(crate) const SMALLEST_INCLUSIVE_POWER_OF_TWO_EXPONENT: NonZeroUsize =
         Self::logarithm_base2(size_of::<Node>());
 
     pub(crate) const NUMBER_OF_BINARY_SEARCH_TREES: usize = 16;
 
-    const LARGEST_INCLUSIVE_BINARY_SEARCH_TREE_INDEX: usize = Self::NUMBER_OF_BINARY_SEARCH_TREES - 1;
+    pub(crate) const LARGEST_INCLUSIVE_BINARY_SEARCH_TREE_INDEX: usize = Self::NUMBER_OF_BINARY_SEARCH_TREES - 1;
 
-    const LARGEST_INCLUSIVE_POWER_OF_TWO_EXPONENT: NonZeroUsize =
+    pub(crate) const LARGEST_INCLUSIVE_POWER_OF_TWO_EXPONENT: NonZeroUsize =
         non_zero_usize(Self::binary_search_tree_index_to_power_of_two_exponent(
             Self::LARGEST_INCLUSIVE_BINARY_SEARCH_TREE_INDEX,
         ));
 
-    pub(crate) const MINIMUM_ALLOCATION_SIZE: NonZeroUsize =
+    pub const MINIMUM_ALLOCATION_SIZE: NonZeroUsize =
         non_zero_usize(1 << Self::SMALLEST_INCLUSIVE_POWER_OF_TWO_EXPONENT.get());
 
-    pub(crate) const MAXIMUM_ALLOCATION_SIZE: NonZeroUsize =
+    pub const MAXIMUM_ALLOCATION_SIZE: NonZeroUsize =
         non_zero_usize(1 << Self::LARGEST_INCLUSIVE_POWER_OF_TWO_EXPONENT.get());
 
     pub(crate) const MINIMUM_ALIGNMENT: NonZeroUsize = Self::MINIMUM_ALLOCATION_SIZE;
 
-    const MAXIMUM_ALIGNMENT: NonZeroUsize = Self::MAXIMUM_ALLOCATION_SIZE;
+    pub(crate) const MAXIMUM_ALIGNMENT: NonZeroUsize = Self::MAXIMUM_ALLOCATION_SIZE;
 
     #[inline(always)]
     const fn logarithm_base2(value: usize) -> NonZeroUsize {

@@ -1,4 +1,4 @@
-use super::memory_address::MemoryAddress;
+use crate::memory_address::MemoryAddress;
 
 /// Represents a memory range for which an allocator can allocate.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
