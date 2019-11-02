@@ -2,14 +2,13 @@
 ///
 /// This does not affect reallocations or deallocations in any way.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum CurrentAllocatorInUse
-{
-	/// A coroutine local allocator.
-	CoroutineLocal,
+pub enum CurrentAllocatorInUse {
+    /// A coroutine local allocator.
+    CoroutineLocal,
 
-	/// A thread local allocator.
-	ThreadLocal,
+    /// A thread local allocator.
+    ThreadLocal,
 
-	/// A global allocator.
-	Global,
+    /// A global allocator.
+    Global,
 }

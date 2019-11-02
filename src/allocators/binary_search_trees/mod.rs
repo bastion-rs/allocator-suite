@@ -23,12 +23,9 @@
 //! * An AA tree requires an additional 4 - 8 bytes to hold an integer 'level`;
 //! * A Red-Black tree requires an additional bit to hold a color combined with a `parent` pointer.
 
-
 use super::*;
-
 
 pub(crate) mod red_black_tree;
 
-
-pub mod binary_search_trees_with_cached_knowledge_of_first_child;
 pub mod binary_search_tree_with_cached_knowledge_of_first_child;
+pub mod binary_search_trees_with_cached_knowledge_of_first_child;

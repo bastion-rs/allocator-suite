@@ -1,13 +1,12 @@
 use crate::memory_address::MemoryAddress;
 use std::alloc::AllocErr;
-use std::num::NonZeroUsize;
 use std::fmt::Debug;
+use std::num::NonZeroUsize;
 
 /// A memory source is a sort-of crude allocator that can obtain and release memory, from, say, the operating system, an arena or some fixed range.
 ///
 /// It is thread-aware but not necessarily thread-safe.
-pub trait MemorySource: Debug
-{
+pub trait MemorySource: Debug {
     /// Obtain memory from the operating system, say.
     ///
     /// Alignment will be whatever is appropriate, but is likely to be quite large.

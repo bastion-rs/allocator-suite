@@ -4,8 +4,7 @@ use crate::memory_sources::mmap::numa::numa_node_bit_set::NumaNodeBitSet;
 ///
 /// Ignored on operating systems other than Android and Linux.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum NumaAllocationPolicy
-{
+pub enum NumaAllocationPolicy {
     /// `MPOL_DEFAULT`.
     ///
     /// This mode requests that any non-default policy be removed, restoring default behavior.
@@ -56,35 +55,29 @@ pub enum NumaAllocationPolicy
     Local,
 }
 
-impl Default for NumaAllocationPolicy
-{
+impl Default for NumaAllocationPolicy {
     #[inline(always)]
-    fn default() -> Self
-    {
+    fn default() -> Self {
         NumaAllocationPolicy::Default
     }
 }
 
-impl NumaAllocationPolicy
-{
+impl NumaAllocationPolicy {
     #[cfg(any(target_os = "android", target_os = "linux"))]
     #[inline(always)]
-    fn values(&self) -> (i32, (i32, Option<usize>, usize))
-    {
+    fn values(&self) -> (i32, (i32, Option<usize>, usize)) {
         use self::NumaAllocationPolicy::*;
 
-        match *self
-            {
-                Default => (0, NumaNodeBitSet::no_mode_flags_nodemask_maxnode),
+        match *self {
+            Default => (0, NumaNodeBitSet::no_mode_flags_nodemask_maxnode),
 
-                Preferred(ref numa_node_bit_set) => (1, numa_node_bit_set.mask_and_size()),
+            Preferred(ref numa_node_bit_set) => (1, numa_node_bit_set.mask_and_size()),
 
-                Bind(ref numa_node_bit_set) => (2, numa_node_bit_set.mask_and_size()),
+            Bind(ref numa_node_bit_set) => (2, numa_node_bit_set.mask_and_size()),
 
-                Interleave(ref numa_node_bit_set) => (3, numa_node_bit_set.mask_and_size()),
+            Interleave(ref numa_node_bit_set) => (3, numa_node_bit_set.mask_and_size()),
 
-                Local => (4, NumaNodeBitSet::no_mode_flags_nodemask_maxnode),
-            }
-
+            Local => (4, NumaNodeBitSet::no_mode_flags_nodemask_maxnode),
+        }
     }
 }

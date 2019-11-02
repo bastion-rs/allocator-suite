@@ -2,21 +2,18 @@ use super::*;
 
 pub(crate) mod binary_search_trees;
 
-
 /// A bit set based allocator; allows reallocations, but requires a linear scan to find free blocks.
 pub mod bit_set;
 
-
 /// Global, switchable allocator.
-#[macro_use] pub mod global;
-
+#[macro_use]
+pub mod global;
 
 pub mod allocator;
 pub mod bump_allocator;
 pub mod context_allocator;
 pub mod memory_map_allocator;
 pub mod multiple_binary_search_tree_allocator;
-
 
 pub mod prelude {
     pub use super::binary_search_trees::*;

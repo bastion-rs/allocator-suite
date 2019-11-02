@@ -26,143 +26,193 @@
 ///
 /// ```
 #[macro_export]
-macro_rules! switchable_allocator
-{
-	($mod_name: ident, $CoroutineLocalAllocator: ty, $ThreadLocalAllocator: ty, $GlobalAllocator: ty, $global_allocator_instance: expr) =>
-	{
-		#[global_allocator] static GLOBAL: $mod_name::GlobalThreadAndCoroutineSwitchableAllocatorInstance = $mod_name::GlobalThreadAndCoroutineSwitchableAllocatorInstance
-		{
-			global_allocator: $global_allocator_instance,
-		};
+macro_rules! switchable_allocator {
+    ($mod_name: ident, $CoroutineLocalAllocator: ty, $ThreadLocalAllocator: ty, $GlobalAllocator: ty, $global_allocator_instance: expr) => {
+        #[global_allocator]
+        static GLOBAL: $mod_name::GlobalThreadAndCoroutineSwitchableAllocatorInstance =
+            $mod_name::GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+                global_allocator: $global_allocator_instance,
+            };
 
-		pub(crate) mod $mod_name
-		{
-			use $crate::*;
-			use ::std::mem::replace;
+        pub(crate) mod $mod_name {
+            use ::std::mem::replace;
+            use $crate::*;
 
-			/// Effectively this is a field of `GlobalThreadAndCoroutineSwitchableAllocatorInstance` with a different value for each thread.
-			///
-			/// It is this piece of logic that necessitates this macro definition.
-			#[thread_local] static mut per_thread_state: PerThreadState<$CoroutineLocalAllocator, $ThreadLocalAllocator> = PerThreadState::empty();
-			
-			#[derive(Debug)]
-			pub(crate) struct GlobalThreadAndCoroutineSwitchableAllocatorInstance
-			{
-				pub(crate) global_allocator: $GlobalAllocator,
-			}
+            /// Effectively this is a field of `GlobalThreadAndCoroutineSwitchableAllocatorInstance` with a different value for each thread.
+            ///
+            /// It is this piece of logic that necessitates this macro definition.
+            #[thread_local]
+            static mut per_thread_state: PerThreadState<
+                $CoroutineLocalAllocator,
+                $ThreadLocalAllocator,
+            > = PerThreadState::empty();
 
-			unsafe impl Sync for GlobalThreadAndCoroutineSwitchableAllocatorInstance
-			{
-			}
+            #[derive(Debug)]
+            pub(crate) struct GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+                pub(crate) global_allocator: $GlobalAllocator,
+            }
 
-			unsafe impl GlobalAlloc for GlobalThreadAndCoroutineSwitchableAllocatorInstance
-			{
-				global_alloc!();
-			}
+            unsafe impl Sync for GlobalThreadAndCoroutineSwitchableAllocatorInstance {}
 
-			unsafe impl Alloc for GlobalThreadAndCoroutineSwitchableAllocatorInstance
-			{
-				alloc!();
-			}
+            unsafe impl GlobalAlloc for GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+                global_alloc!();
+            }
 
-			impl Allocator for GlobalThreadAndCoroutineSwitchableAllocatorInstance
-			{
-				#[inline(always)]
-				fn allocate(&self, non_zero_size: NonZeroUsize, non_zero_power_of_two_alignment: NonZeroUsize) -> Result<MemoryAddress, AllocErr>
-				{
-					use self::CurrentAllocatorInUse::*;
+            unsafe impl Alloc for GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+                alloc!();
+            }
 
-					match self.save_current_allocator_in_use()
-					{
-						CoroutineLocal => self.coroutine_local_allocator().expect("Should have assigned a coroutine local allocator").allocate(non_zero_size, non_zero_power_of_two_alignment),
+            impl Allocator for GlobalThreadAndCoroutineSwitchableAllocatorInstance {
+                #[inline(always)]
+                fn allocate(
+                    &self,
+                    non_zero_size: NonZeroUsize,
+                    non_zero_power_of_two_alignment: NonZeroUsize,
+                ) -> Result<MemoryAddress, AllocErr> {
+                    use self::CurrentAllocatorInUse::*;
 
-						ThreadLocal => self.thread_local_allocator().expect("Should have assigned a thread local allocator").allocate(non_zero_size, non_zero_power_of_two_alignment),
+                    match self.save_current_allocator_in_use() {
+                        CoroutineLocal => self
+                            .coroutine_local_allocator()
+                            .expect("Should have assigned a coroutine local allocator")
+                            .allocate(non_zero_size, non_zero_power_of_two_alignment),
 
-						Global => self.global_allocator().allocate(non_zero_size, non_zero_power_of_two_alignment),
-					}
-				}
+                        ThreadLocal => self
+                            .thread_local_allocator()
+                            .expect("Should have assigned a thread local allocator")
+                            .allocate(non_zero_size, non_zero_power_of_two_alignment),
 
-				#[inline(always)]
-				fn deallocate(&self, non_zero_size: NonZeroUsize, non_zero_power_of_two_alignment: NonZeroUsize, current_memory: MemoryAddress)
-				{
-					choose_allocator!(self, current_memory, deallocate, non_zero_size, non_zero_power_of_two_alignment, current_memory)
-				}
+                        Global => self
+                            .global_allocator()
+                            .allocate(non_zero_size, non_zero_power_of_two_alignment),
+                    }
+                }
 
-				#[inline(always)]
-				fn growing_reallocate(&self, non_zero_new_size: NonZeroUsize, non_zero_power_of_two_alignment: NonZeroUsize, non_zero_current_size: NonZeroUsize, current_memory: MemoryAddress) -> Result<MemoryAddress, AllocErr>
-				{
-					choose_allocator!(self, current_memory, growing_reallocate, non_zero_new_size, non_zero_power_of_two_alignment, non_zero_current_size, current_memory)
-				}
+                #[inline(always)]
+                fn deallocate(
+                    &self,
+                    non_zero_size: NonZeroUsize,
+                    non_zero_power_of_two_alignment: NonZeroUsize,
+                    current_memory: MemoryAddress,
+                ) {
+                    choose_allocator!(
+                        self,
+                        current_memory,
+                        deallocate,
+                        non_zero_size,
+                        non_zero_power_of_two_alignment,
+                        current_memory
+                    )
+                }
 
-				#[inline(always)]
-				fn shrinking_reallocate(&self, non_zero_new_size: NonZeroUsize, non_zero_power_of_two_alignment: NonZeroUsize, non_zero_current_size: NonZeroUsize, current_memory: MemoryAddress) -> Result<MemoryAddress, AllocErr>
-				{
-					choose_allocator!(self, current_memory, growing_reallocate, non_zero_new_size, non_zero_power_of_two_alignment, non_zero_current_size, current_memory)
-				}
-			}
+                #[inline(always)]
+                fn growing_reallocate(
+                    &self,
+                    non_zero_new_size: NonZeroUsize,
+                    non_zero_power_of_two_alignment: NonZeroUsize,
+                    non_zero_current_size: NonZeroUsize,
+                    current_memory: MemoryAddress,
+                ) -> Result<MemoryAddress, AllocErr> {
+                    choose_allocator!(
+                        self,
+                        current_memory,
+                        growing_reallocate,
+                        non_zero_new_size,
+                        non_zero_power_of_two_alignment,
+                        non_zero_current_size,
+                        current_memory
+                    )
+                }
 
-			impl GlobalThreadAndCoroutineSwitchableAllocator for GlobalThreadAndCoroutineSwitchableAllocatorInstance
-			{
-				type CoroutineLocalAllocator = $CoroutineLocalAllocator;
+                #[inline(always)]
+                fn shrinking_reallocate(
+                    &self,
+                    non_zero_new_size: NonZeroUsize,
+                    non_zero_power_of_two_alignment: NonZeroUsize,
+                    non_zero_current_size: NonZeroUsize,
+                    current_memory: MemoryAddress,
+                ) -> Result<MemoryAddress, AllocErr> {
+                    choose_allocator!(
+                        self,
+                        current_memory,
+                        growing_reallocate,
+                        non_zero_new_size,
+                        non_zero_power_of_two_alignment,
+                        non_zero_current_size,
+                        current_memory
+                    )
+                }
+            }
 
-				type ThreadLocalAllocator = $ThreadLocalAllocator;
+            impl GlobalThreadAndCoroutineSwitchableAllocator
+                for GlobalThreadAndCoroutineSwitchableAllocatorInstance
+            {
+                type CoroutineLocalAllocator = $CoroutineLocalAllocator;
 
-				type GlobalAllocator = $GlobalAllocator;
+                type ThreadLocalAllocator = $ThreadLocalAllocator;
 
-				#[inline(always)]
-				fn replace_coroutine_local_allocator(&self, replacement: Option<Self::CoroutineLocalAllocator>) -> Option<Self::CoroutineLocalAllocator>
-				{
-					unsafe { replace(&mut per_thread_state.coroutine_local_allocator, replacement) }
-				}
+                type GlobalAllocator = $GlobalAllocator;
 
-				#[inline(always)]
-				fn initialize_thread_local_allocator(&self, thread_local_allocator: Self::ThreadLocalAllocator)
-				{
-					debug_assert!(unsafe { per_thread_state.thread_local_allocator.is_none() }, "Already initialized thread local allocator");
+                #[inline(always)]
+                fn replace_coroutine_local_allocator(
+                    &self,
+                    replacement: Option<Self::CoroutineLocalAllocator>,
+                ) -> Option<Self::CoroutineLocalAllocator> {
+                    unsafe { replace(&mut per_thread_state.coroutine_local_allocator, replacement) }
+                }
 
-					unsafe { per_thread_state.thread_local_allocator = Some(thread_local_allocator) }
-				}
+                #[inline(always)]
+                fn initialize_thread_local_allocator(
+                    &self,
+                    thread_local_allocator: Self::ThreadLocalAllocator,
+                ) {
+                    debug_assert!(
+                        unsafe { per_thread_state.thread_local_allocator.is_none() },
+                        "Already initialized thread local allocator"
+                    );
 
-				#[inline(always)]
-				fn drop_thread_local_allocator(&self)
-				{
-					debug_assert!(unsafe { per_thread_state.thread_local_allocator.is_some() }, "Already deinitialized thread local allocator");
+                    unsafe {
+                        per_thread_state.thread_local_allocator = Some(thread_local_allocator)
+                    }
+                }
 
-					unsafe { per_thread_state.thread_local_allocator = None }
-				}
+                #[inline(always)]
+                fn drop_thread_local_allocator(&self) {
+                    debug_assert!(
+                        unsafe { per_thread_state.thread_local_allocator.is_some() },
+                        "Already deinitialized thread local allocator"
+                    );
 
-				#[inline(always)]
-				fn save_current_allocator_in_use(&self) -> CurrentAllocatorInUse
-				{
-					unsafe { per_thread_state.current_allocator_in_use }
-				}
+                    unsafe { per_thread_state.thread_local_allocator = None }
+                }
 
-				#[inline(always)]
-				fn restore_current_allocator_in_use(&self, restore_to: CurrentAllocatorInUse)
-				{
-					unsafe { per_thread_state.current_allocator_in_use = restore_to }
-				}
+                #[inline(always)]
+                fn save_current_allocator_in_use(&self) -> CurrentAllocatorInUse {
+                    unsafe { per_thread_state.current_allocator_in_use }
+                }
 
-				#[inline(always)]
-				fn coroutine_local_allocator(&self) -> Option<&Self::CoroutineLocalAllocator>
-				{
-					unsafe { per_thread_state.coroutine_local_allocator.as_ref() }
-				}
+                #[inline(always)]
+                fn restore_current_allocator_in_use(&self, restore_to: CurrentAllocatorInUse) {
+                    unsafe { per_thread_state.current_allocator_in_use = restore_to }
+                }
 
-				#[inline(always)]
-				fn thread_local_allocator(&self) -> Option<&Self::ThreadLocalAllocator>
-				{
-					unsafe { per_thread_state.thread_local_allocator.as_ref() }
-				}
+                #[inline(always)]
+                fn coroutine_local_allocator(&self) -> Option<&Self::CoroutineLocalAllocator> {
+                    unsafe { per_thread_state.coroutine_local_allocator.as_ref() }
+                }
 
-				#[inline(always)]
-				fn global_allocator(&self) -> &Self::GlobalAllocator
-				{
-					&self.global_allocator
-				}
-			}
-		}
-	}
+                #[inline(always)]
+                fn thread_local_allocator(&self) -> Option<&Self::ThreadLocalAllocator> {
+                    unsafe { per_thread_state.thread_local_allocator.as_ref() }
+                }
+
+                #[inline(always)]
+                fn global_allocator(&self) -> &Self::GlobalAllocator {
+                    &self.global_allocator
+                }
+            }
+        }
+    };
 }
 
 #[doc(hidden)]

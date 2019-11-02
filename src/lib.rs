@@ -26,10 +26,10 @@ pub mod memory_sources;
 pub mod memory_address;
 
 pub mod prelude {
-    pub use crate::likeliness::*;
     pub use crate::adaptors::*;
     pub use crate::allocators::*;
     pub use crate::extensions::*;
-    pub use crate::memory_sources::*;
+    pub use crate::likeliness::*;
     pub use crate::memory_address::*;
+    pub use crate::memory_sources::*;
 }

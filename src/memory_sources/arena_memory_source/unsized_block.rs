@@ -1,4 +1,3 @@
-extern
-{
+extern "C" {
     pub type Unsized;
 }
