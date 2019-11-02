@@ -57,7 +57,7 @@ impl MemoryMapSource {
     /// * `lock`: Should allocated memory be locked (through a process equivalent to `mlock()`), thereby making out-of-memory fail fast. This setting will cause failures if `rlimit()` has not been increased.
     /// * `prefault`: Should allocated memory be pre-faulted, ie all pages loaded and made resident in RAM when allocation occurs? This slows down allocation but make subsequent accesses faster. Only on Android, FreeBSD and Linux.
     /// * `do_not_reserve_swap_space`: Do not reserve swap space for the mapping. Only on Android, Linux and NetBSD.
-    /// * `allocate_within_first_32Gb`: Useful for stacks and creating executable code. Only on Android, FreeBSD and Linux on 64-bit CPUs.
+    /// * `allocate_within_first_32_gb`: Useful for stacks and creating executable code. Only on Android, FreeBSD and Linux on 64-bit CPUs.
     /// * `huge_page_size`: Huge page size to use with Transparent Huge Pages (THP). On operating systems other than Android and Linux, specifying a huge page size has no effect.
     /// * `numa_settings`: NUMA policy settings for optimizing memory allocations to the nearest node. On operating systems other than Android and Linux, specifying a value has no effect.
     #[allow(unused_variables)]
@@ -66,7 +66,7 @@ impl MemoryMapSource {
         lock: bool,
         prefault: bool,
         do_not_reserve_swap_space: bool,
-        allocate_within_first_32Gb: bool,
+        allocate_within_first_32_gb: bool,
         huge_page_size: HugePageSize,
         numa_settings: Option<NumaSettings>,
     ) -> Self {
@@ -75,7 +75,7 @@ impl MemoryMapSource {
                 lock,
                 prefault,
                 do_not_reserve_swap_space,
-                allocate_within_first_32Gb,
+                allocate_within_first_32_gb,
                 huge_page_size,
             ),
             #[cfg(not(any(target_os = "android", target_os = "netbsd", target_os = "linux")))]
@@ -90,8 +90,8 @@ impl MemoryMapSource {
     /// `size` is rounded up to system page size.
     #[inline(always)]
     pub(crate) fn mmap_memory(&self, size: usize) -> Result<MemoryAddress, AllocErr> {
-        const UnusedFileDescriptor: i32 = -1;
-        const NoOffset: i64 = 0;
+        const UNUSED_FILE_DESCRIPTOR: i32 = -1;
+        const NO_OFFSET: i64 = 0;
 
         let result = unsafe {
             mmap(
@@ -99,8 +99,8 @@ impl MemoryMapSource {
                 size,
                 PROT_READ | PROT_WRITE,
                 self.map_flags,
-                UnusedFileDescriptor,
-                NoOffset,
+                UNUSED_FILE_DESCRIPTOR,
+                NO_OFFSET,
             )
         };
         if unlikely!(result == MAP_FAILED) {
@@ -228,65 +228,65 @@ impl MemoryMapSource {
         lock: bool,
         prefault: bool,
         do_not_reserve_swap_space: bool,
-        allocate_within_first_32Gb: bool,
+        allocate_within_first_32_gb: bool,
         huge_page_size: HugePageSize,
     ) -> i32 {
         #[cfg(target_os = "netbsd")]
         const MAP_ANONYMOUS: i32 = MAP_ANON;
 
         #[cfg(all(target_os = "dragonfly", target_os = "freebsd", target_os = "openbsd"))]
-        const OmitFromCoreDumps: i32 = MAP_NOCORE;
+        const OMIT_FROM_CORE_DUMPS: i32 = MAP_NOCORE;
         #[cfg(not(any(target_os = "dragonfly", target_os = "freebsd", target_os = "openbsd")))]
-        const OmitFromCoreDumps: i32 = 0;
+        const OMIT_FROM_CORE_DUMPS: i32 = 0;
 
         #[cfg(any(target_os = "android", target_os = "linux"))]
-        const Locked: i32 = MAP_LOCKED;
+        const LOCKED: i32 = MAP_LOCKED;
         #[cfg(target_os = "netbsd")]
-        const Locked: i32 = MAP_WIRED;
+        const LOCKED: i32 = MAP_WIRED;
         #[cfg(not(any(target_os = "android", target_os = "netbsd", target_os = "linux")))]
-        const Locked: i32 = 0;
+        const LOCKED: i32 = 0;
 
         #[cfg(any(target_os = "android", target_os = "linux"))]
-        const Prefault: i32 = MAP_POPULATE;
+        const PREFAULT: i32 = MAP_POPULATE;
         #[cfg(target_os = "freebsd")]
-        const Prefault: i32 = MAP_PREFAULT_READ;
+        const PREFAULT: i32 = MAP_PREFAULT_READ;
         #[cfg(not(any(target_os = "android", target_os = "freebsd", target_os = "linux")))]
-        const Prefault: i32 = 0;
+        const PREFAULT: i32 = 0;
 
         #[cfg(any(target_os = "android", target_os = "linux", target_os = "netbsd"))]
-        const DoNotReserveSwapSpace: i32 = MAP_NORESERVE;
+        const DO_NOT_RESERVE_SWAP_SPACE: i32 = MAP_NORESERVE;
         #[cfg(not(any(target_os = "android", target_os = "linux", target_os = "netbsd")))]
-        const DoNotReserveSwapSpace: i32 = 0;
+        const DO_NOT_RESERVE_SWAP_SPACE: i32 = 0;
 
         #[cfg(all(
             target_pointer_width = "64",
             any(target_os = "android", target_os = "freebsd", target_os = "linux")
         ))]
-        const AllocateWithnFirst32Gb: i32 = MAP_32BIT;
+        const ALLOCATE_WITHIN_FIRST32_GB: i32 = MAP_32BIT;
         #[cfg(not(all(
             target_pointer_width = "64",
             any(target_os = "android", target_os = "freebsd", target_os = "linux")
         )))]
-        const AllocateWithnFirst32Gb: i32 = 0;
+        const ALLOCATE_WITHIN_FIRST32_GB: i32 = 0;
 
-        let map_flags: i32 = MAP_PRIVATE | MAP_ANONYMOUS | OmitFromCoreDumps;
+        let map_flags: i32 = MAP_PRIVATE | MAP_ANONYMOUS | OMIT_FROM_CORE_DUMPS;
 
-        let map_flags = if lock { map_flags | Locked } else { map_flags };
+        let map_flags = if lock { map_flags | LOCKED } else { map_flags };
 
         let map_flags = if prefault {
-            map_flags | Prefault
+            map_flags | PREFAULT
         } else {
             map_flags
         };
 
         let map_flags = if do_not_reserve_swap_space {
-            map_flags | DoNotReserveSwapSpace
+            map_flags | DO_NOT_RESERVE_SWAP_SPACE
         } else {
             map_flags
         };
 
-        let map_flags = if allocate_within_first_32Gb {
-            map_flags | AllocateWithnFirst32Gb
+        let map_flags = if allocate_within_first_32_gb {
+            map_flags | ALLOCATE_WITHIN_FIRST32_GB
         } else {
             map_flags
         };

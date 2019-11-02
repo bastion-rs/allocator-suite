@@ -138,7 +138,7 @@ impl<MS: MemorySource> ArenaMemorySource<MS> {
         UnallocatedBlock::from_memory_address(allocations_end_at_less_one_block).initialize(
             block_size,
             &block_initializer,
-            SlotIndex::IsFullyAllocatedNextAvailableSlotIndexSentinel,
+            SlotIndex::IS_FULLY_ALLOCATED_NEXT_AVAILABLE_SLOT_INDEX_SENTINEL,
         );
     }
 
@@ -151,13 +151,8 @@ impl<MS: MemorySource> ArenaMemorySource<MS> {
     fn block_from_slot_index(&self, slot_index: SlotIndex) -> MemoryAddress {
         debug_assert_ne!(
             slot_index,
-            SlotIndex::IsFullyAllocatedNextAvailableSlotIndexSentinel,
+            SlotIndex::IS_FULLY_ALLOCATED_NEXT_AVAILABLE_SLOT_INDEX_SENTINEL,
             "Should never get IsFullyAllocatedNextAvailableSlotIndexSentinel for `slot_index`"
-        );
-
-        debug_assert!(
-            slot_index.0 < self.number_of_blocks.get(),
-            "Arena index was out-of-range"
         );
 
         self.allocations_start_from

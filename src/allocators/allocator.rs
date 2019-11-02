@@ -11,7 +11,7 @@ use std::fmt::Debug;
 /// A helper trait that brings together the core, common functionality required to implement the traits `GlobalAlloc` and `Alloc`.
 pub trait Allocator: Debug + Sized {
     /// The sentinel value used for a zero-sized allocation.
-    const ZeroSizedAllocation: MemoryAddress = non_null_pointer(::std::usize::MAX as *mut u8);
+    const ZERO_SIZED_ALLOCATION: MemoryAddress = non_null_pointer(::std::usize::MAX as *mut u8);
 
     /// Allocate memory.
     fn allocate(
@@ -22,7 +22,7 @@ pub trait Allocator: Debug + Sized {
 
     /// Deallocate (free) memory.
     ///
-    /// The parameter `memory` will never be the value `Self::ZeroSizedAllocation` and will always have been allocated by this `Allocator`.
+    /// The parameter `memory` will never be the value `Self::ZERO_SIZED_ALLOCATION` and will always have been allocated by this `Allocator`.
     fn deallocate(
         &self,
         non_zero_size: NonZeroUsize,
@@ -74,7 +74,7 @@ pub trait Allocator: Debug + Sized {
         let zero_size = layout.size_;
 
         if unlikely!(zero_size == 0) {
-            return Ok(Self::ZeroSizedAllocation);
+            return Ok(Self::ZERO_SIZED_ALLOCATION);
         }
 
         let non_zero_size = layout.size_.non_zero();
@@ -132,7 +132,7 @@ pub trait Allocator: Debug + Sized {
                     non_zero_power_of_two_alignment,
                     current_memory,
                 );
-                return Ok(Self::ZeroSizedAllocation);
+                return Ok(Self::ZERO_SIZED_ALLOCATION);
             }
 
             let non_zero_new_size = new_size.non_zero();
@@ -147,13 +147,13 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn GlobalAlloc_alloc(&self, layout: Layout) -> *mut u8 {
+    unsafe fn global_alloc_alloc(&self, layout: Layout) -> *mut u8 {
         let layout = LayoutHack::access_private_fields(layout);
 
         let zero_size = layout.size_;
 
         if unlikely!(zero_size == 0) {
-            return Self::ZeroSizedAllocation.as_ptr();
+            return Self::ZERO_SIZED_ALLOCATION.as_ptr();
         }
 
         let non_zero_size = NonZeroUsize::new_unchecked(zero_size);
@@ -162,23 +162,23 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn GlobalAlloc_alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+    unsafe fn global_alloc_alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         transmute(self.allocate_zeroed(layout))
     }
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn GlobalAlloc_dealloc(&self, ptr: *mut u8, layout: Layout) {
+    unsafe fn global_alloc_dealloc(&self, ptr: *mut u8, layout: Layout) {
         debug_assert_ne!(ptr, null_mut(), "ptr should never be null");
 
-        if unlikely!(ptr == Self::ZeroSizedAllocation.as_ptr()) {
+        if unlikely!(ptr == Self::ZERO_SIZED_ALLOCATION.as_ptr()) {
             return;
         }
 
         let layout = LayoutHack::access_private_fields(layout);
 
         let zero_size = layout.size_;
-        debug_assert_ne!(zero_size, 0, "It should not be possible for a `layout.size_` to be zero if the `ptr` was the sentinel `Allocator::ZeroSizedAllocation`");
+        debug_assert_ne!(zero_size, 0, "It should not be possible for a `layout.size_` to be zero if the `ptr` was the sentinel `Allocator::ZERO_SIZED_ALLOCATION`");
         let non_zero_size = NonZeroUsize::new_unchecked(zero_size);
 
         let current_memory = NonNull::new_unchecked(ptr);
@@ -188,7 +188,7 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn GlobalAlloc_realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+    unsafe fn global_alloc_realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
         debug_assert_ne!(ptr, null_mut(), "ptr should never be null");
 
         transmute(self.reallocate(NonNull::new_unchecked(ptr), layout, new_size))
@@ -196,10 +196,10 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn Alloc_alloc(&self, layout: Layout) -> Result<MemoryAddress, AllocErr> {
+    unsafe fn alloc_alloc(&self, layout: Layout) -> Result<MemoryAddress, AllocErr> {
         let layout = LayoutHack::access_private_fields(layout);
         if unlikely!(layout.size_ == 0) {
-            return Ok(Self::ZeroSizedAllocation);
+            return Ok(Self::ZERO_SIZED_ALLOCATION);
         }
         let non_zero_size = NonZeroUsize::new_unchecked(layout.size_);
         self.allocate(non_zero_size, layout.align_)
@@ -207,19 +207,19 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn Alloc_alloc_zeroed(&self, layout: Layout) -> Result<MemoryAddress, AllocErr> {
+    unsafe fn alloc_alloc_zeroed(&self, layout: Layout) -> Result<MemoryAddress, AllocErr> {
         self.allocate_zeroed(layout)
     }
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn Alloc_dealloc(&self, ptr: MemoryAddress, layout: Layout) {
-        if unlikely!(ptr == Self::ZeroSizedAllocation) {
+    unsafe fn alloc_dealloc(&self, ptr: MemoryAddress, layout: Layout) {
+        if unlikely!(ptr == Self::ZERO_SIZED_ALLOCATION) {
             return;
         }
 
         let layout = LayoutHack::access_private_fields(layout);
-        debug_assert_ne!(layout.size_, 0, "It should not be possible for a `layout.size_` to be zero if the `ptr` was the sentinel `Allocator::ZeroSizedAllocation`");
+        debug_assert_ne!(layout.size_, 0, "It should not be possible for a `layout.size_` to be zero if the `ptr` was the sentinel `Allocator::ZERO_SIZED_ALLOCATION`");
 
         let non_zero_size = NonZeroUsize::new_unchecked(layout.size_);
         self.deallocate(non_zero_size, layout.align_, ptr)
@@ -227,7 +227,7 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn Alloc_realloc(
+    unsafe fn alloc_realloc(
         &self,
         ptr: MemoryAddress,
         layout: Layout,
@@ -238,10 +238,10 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn Alloc_alloc_excess(&self, layout: Layout) -> Result<Excess, AllocErr> {
+    unsafe fn alloc_alloc_excess(&self, layout: Layout) -> Result<Excess, AllocErr> {
         let layout = LayoutHack::access_private_fields(layout);
         if unlikely!(layout.size_ == 0) {
-            return Ok(Excess(Self::ZeroSizedAllocation, 0));
+            return Ok(Excess(Self::ZERO_SIZED_ALLOCATION, 0));
         }
         let size = layout.size_;
         let non_zero_size = NonZeroUsize::new_unchecked(size);
@@ -260,7 +260,7 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn Alloc_realloc_excess(
+    unsafe fn alloc_realloc_excess(
         &self,
         ptr: MemoryAddress,
         layout: Layout,
@@ -280,7 +280,7 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn Alloc_grow_in_place(
+    unsafe fn alloc_grow_in_place(
         &self,
         _ptr: MemoryAddress,
         layout: Layout,
@@ -299,7 +299,7 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn Alloc_shrink_in_place(
+    unsafe fn alloc_shrink_in_place(
         &self,
         _ptr: MemoryAddress,
         layout: Layout,

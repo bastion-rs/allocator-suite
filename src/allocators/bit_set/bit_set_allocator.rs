@@ -58,7 +58,7 @@ impl<MS: MemorySource> Allocator for BitSetAllocator<MS> {
                 - self.block_size.block_size_power_of_two_exponent;
 
             let alignment_exceeds_that_which_can_be_accommodated_in_one_bit_set_word =
-                power_of_two_exponent > BitSetWord::SizeInBits;
+                power_of_two_exponent > BitSetWord::SIZE_IN_BITS;
             if unlikely!(alignment_exceeds_that_which_can_be_accommodated_in_one_bit_set_word) {
                 return Err(AllocErr);
             }
@@ -82,8 +82,8 @@ impl<MS: MemorySource> Allocator for BitSetAllocator<MS> {
             number_of_bits_required: NumberOfBits,
         ) -> (BitSetWordPointer, NumberOfBits) {
             let (location_major, bits_unset_to_reach_alignment) = location
-                .align_upwards_to_next_bit_set_word_pointer(NumberOfBits::Zero, |location| {
-                    let number_of_lower_bits = NumberOfBits::InBitSetWord - location.minor;
+                .align_upwards_to_next_bit_set_word_pointer(NumberOfBits::ZERO, |location| {
+                    let number_of_lower_bits = NumberOfBits::IN_BIT_SET_WORD - location.minor;
 
                     if likely!(number_of_bits_required >= number_of_lower_bits) {
                         location.major.unset_bottom_bits(number_of_lower_bits);
@@ -106,9 +106,9 @@ impl<MS: MemorySource> Allocator for BitSetAllocator<MS> {
             mut location_major: BitSetWordPointer,
             mut remaining_bits_to_unset_in_middle_and_at_end: NumberOfBits,
         ) -> (BitSetWordPointer, NumberOfBits) {
-            while remaining_bits_to_unset_in_middle_and_at_end >= NumberOfBits::InBitSetWord {
+            while remaining_bits_to_unset_in_middle_and_at_end >= NumberOfBits::IN_BIT_SET_WORD {
                 location_major.unset_all_bits_and_increment_assign();
-                remaining_bits_to_unset_in_middle_and_at_end -= NumberOfBits::InBitSetWord;
+                remaining_bits_to_unset_in_middle_and_at_end -= NumberOfBits::IN_BIT_SET_WORD;
             }
 
             (location_major, remaining_bits_to_unset_in_middle_and_at_end)
@@ -274,10 +274,10 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
             "block_size `{:?}` must be a power of 2",
             block_size
         );
-        debug_assert!(block_size.get() >= BitSetWord::SizeInBytes, "block_size `{:?}` must at least `{:?}` so that the bit set metadata holding free blocks can be allocated contiguous with the memory used for blocks", block_size, BitSetWord::SizeInBytes);
+        debug_assert!(block_size.get() >= BitSetWord::SIZE_IN_BYTES, "block_size `{:?}` must at least `{:?}` so that the bit set metadata holding free blocks can be allocated contiguous with the memory used for blocks", block_size, BitSetWord::SIZE_IN_BYTES);
 
         let size_in_bytes = number_of_blocks.get() << block_size.logarithm_base2();
-        let bit_set_size_in_bytes = number_of_blocks.get() / NumberOfBits::InBitSetWord.to_usize();
+        let bit_set_size_in_bytes = number_of_blocks.get() / NumberOfBits::IN_BIT_SET_WORD.to_usize();
         let memory_source_size = (size_in_bytes + bit_set_size_in_bytes).non_zero();
         let allocations_start_from = memory_source.obtain(memory_source_size)?;
 
@@ -349,7 +349,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
 			($self: ident, $number_of_bits_required: ident, $power_of_two_exponent: ident, $end_bit_set_word_pointer: ident, $callback: ident) =>
 			{
 				{
-					let mut contiguous_unset_bits_count = NumberOfBits::Zero;
+					let mut contiguous_unset_bits_count = NumberOfBits::ZERO;
 					let mut bit_set_word_pointer = $self.start_search_for_next_allocation_at.get();
 					while bit_set_word_pointer != $end_bit_set_word_pointer
 					{
@@ -432,7 +432,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
             if likely!(unaligned_trailing_bits_in_front.is_not_zero()) {
                 starts_from.set_bottom_bits(unaligned_trailing_bits_in_front);
                 let offset_into_bit_set = rounded_down_number_of_bits
-                    + (NumberOfBits::InBitSetWord - unaligned_trailing_bits_in_front);
+                    + (NumberOfBits::IN_BIT_SET_WORD - unaligned_trailing_bits_in_front);
                 (
                     starts_from.increment(),
                     bits_to_set_at_front_and_in_middle - unaligned_trailing_bits_in_front,
@@ -453,10 +453,10 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
             mut remaining_bits_to_set_in_middle: NumberOfBits,
         ) -> BitSetWordPointer {
             while remaining_bits_to_set_in_middle.is_not_zero() {
-                debug_assert!(remaining_bits_to_set_in_middle >= NumberOfBits::InBitSetWord);
+                debug_assert!(remaining_bits_to_set_in_middle >= NumberOfBits::IN_BIT_SET_WORD);
 
                 location_major.set_all_bits_and_increment_assign();
-                remaining_bits_to_set_in_middle -= NumberOfBits::InBitSetWord;
+                remaining_bits_to_set_in_middle -= NumberOfBits::IN_BIT_SET_WORD;
             }
 
             location_major
@@ -496,7 +496,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
         _contiguous_unset_bits_now_available: NumberOfBits,
         power_of_two_exponent: usize,
     ) -> Either<MemoryAddress, NumberOfBits> {
-        debug_assert!(current_leading_unset_bits < NumberOfBits::InBitSetWord, "If there are 64 leading unset bits, and this allocation is for less than 64 blocks, then it should have been allocated successfully prior to this method");
+        debug_assert!(current_leading_unset_bits < NumberOfBits::IN_BIT_SET_WORD, "If there are 64 leading unset bits, and this allocation is for less than 64 blocks, then it should have been allocated successfully prior to this method");
         debug_assert!(number_of_bits_required > current_leading_unset_bits);
 
         let quick_check_to_eliminate_most_cases_that_are_likely_to_be_unsuccessful =
@@ -514,7 +514,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
                 let lowest_top_bit_count = {
                     let irrelevant_top_bits_count = current_leading_unset_bits + 1;
                     let lowest_top_bit_count = irrelevant_top_bits_count + number_of_bits_required;
-                    if unlikely!(lowest_top_bit_count > NumberOfBits::InBitSetWord) {
+                    if unlikely!(lowest_top_bit_count > NumberOfBits::IN_BIT_SET_WORD) {
                         return Right(Self::aligned_trailing_unset_bits(
                             current,
                             power_of_two_exponent,
@@ -523,7 +523,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
                     lowest_top_bit_count
                 };
 
-                (NumberOfBits::InBitSetWord - lowest_top_bit_count).to_u64()
+                (NumberOfBits::IN_BIT_SET_WORD - lowest_top_bit_count).to_u64()
             };
 
             let shift_decrement = 1 << power_of_two_exponent;
@@ -554,7 +554,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
                     let offset_into_bit_set = {
                         let major_location = bit_set_word_pointer
                             .difference_in_number_of_bits(self.inclusive_start_of_bit_set);
-                        let minor_location = NumberOfBits::InBitSetWord
+                        let minor_location = NumberOfBits::IN_BIT_SET_WORD
                             - (number_of_bits_required + NumberOfBits(shift as usize));
                         major_location + minor_location
                     };

@@ -1,5 +1,5 @@
 use super::extensions::prelude::*;
-use crate::allocators::bit_set::bits_in_a_byte::BitsInAByte;
+use crate::allocators::bit_set::bits_in_a_byte::BITS_IN_A_BYTE;
 use crate::allocators::bit_set::number_of_bits::NumberOfBits;
 use std::num::NonZeroUsize;
 use std::ops::Sub;
@@ -43,6 +43,6 @@ impl NumberOfBytes {
 
     #[inline(always)]
     pub(crate) fn to_number_of_bits(self) -> NumberOfBits {
-        NumberOfBits(self.0 * BitsInAByte)
+        NumberOfBits(self.0 * BITS_IN_A_BYTE)
     }
 }

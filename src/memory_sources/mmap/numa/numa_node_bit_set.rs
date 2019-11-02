@@ -1,3 +1,5 @@
+use std::mem::size_of;
+
 /// NUMA nodes to allocate on.
 ///
 /// If set to no nodes (the `Default::default()`) then memory is allocated on the local node if possible.
@@ -22,7 +24,7 @@ pub struct NumaNodeBitSet {
 
 impl NumaNodeBitSet {
     #[allow(dead_code)]
-    pub const no_mode_flags_nodemask_maxnode: (i32, Option<usize>, usize) = (0, None, 0);
+    pub const NO_MODE_FLAGS_NODEMASK_MAXNODE: (i32, Option<usize>, usize) = (0, None, 0);
 
     /// Is this the empty set?
     #[inline(always)]
@@ -46,7 +48,7 @@ impl NumaNodeBitSet {
     #[inline(always)]
     pub fn mask_and_size(&self) -> (i32, Option<usize>, usize) {
         if likely!(self.is_empty()) {
-            Self::no_mode_flags_nodemask_maxnode
+            Self::NO_MODE_FLAGS_NODEMASK_MAXNODE
         } else {
             let size = size_of::<usize>();
 

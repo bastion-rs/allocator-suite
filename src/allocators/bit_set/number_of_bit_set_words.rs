@@ -7,16 +7,16 @@ use std::ops::Sub;
 pub(crate) struct NumberOfBitSetWords(pub usize);
 
 impl NumberOfBitSetWords {
-    pub(crate) const One: Self = Self(1);
+    pub(crate) const ONE: Self = Self(1);
 
     #[inline(always)]
     pub(crate) fn to_number_of_bytes(self) -> NumberOfBytes {
-        NumberOfBytes(self.0 * BitSetWord::SizeInBytes)
+        NumberOfBytes(self.0 * BitSetWord::SIZE_IN_BYTES)
     }
 
     #[inline(always)]
     pub(crate) fn to_number_of_bits(self) -> NumberOfBits {
-        NumberOfBits(self.0 * BitSetWord::SizeInBits)
+        NumberOfBits(self.0 * BitSetWord::SIZE_IN_BITS)
     }
 }
 

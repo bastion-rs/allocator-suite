@@ -69,7 +69,7 @@ impl NumaAllocationPolicy {
         use self::NumaAllocationPolicy::*;
 
         match *self {
-            Default => (0, NumaNodeBitSet::no_mode_flags_nodemask_maxnode),
+            Default => (0, NumaNodeBitSet::NO_MODE_FLAGS_NODEMASK_MAXNODE),
 
             Preferred(ref numa_node_bit_set) => (1, numa_node_bit_set.mask_and_size()),
 
@@ -77,7 +77,7 @@ impl NumaAllocationPolicy {
 
             Interleave(ref numa_node_bit_set) => (3, numa_node_bit_set.mask_and_size()),
 
-            Local => (4, NumaNodeBitSet::no_mode_flags_nodemask_maxnode),
+            Local => (4, NumaNodeBitSet::NO_MODE_FLAGS_NODEMASK_MAXNODE),
         }
     }
 }

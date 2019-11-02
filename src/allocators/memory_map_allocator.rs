@@ -25,9 +25,9 @@ impl Allocator for MemoryMapAllocator {
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
     ) -> Result<MemoryAddress, AllocErr> {
-        const AssumedPageSize: usize = 4096;
+        const ASSUMED_PAGE_SIZE: usize = 4096;
 
-        if unlikely!(non_zero_power_of_two_alignment.get() > AssumedPageSize) {
+        if unlikely!(non_zero_power_of_two_alignment.get() > ASSUMED_PAGE_SIZE) {
             return Err(AllocErr);
         }
 

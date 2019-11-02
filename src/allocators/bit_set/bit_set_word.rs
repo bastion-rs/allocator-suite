@@ -1,4 +1,4 @@
-use crate::allocators::bit_set::bits_in_a_byte::BitsInAByte;
+use crate::allocators::bit_set::bits_in_a_byte::BITS_IN_A_BYTE;
 use crate::allocators::bit_set::number_of_bits::NumberOfBits;
 use std::mem::size_of;
 
@@ -6,9 +6,9 @@ use std::mem::size_of;
 pub struct BitSetWord(pub u64);
 
 impl BitSetWord {
-    pub(crate) const SizeInBytes: usize = size_of::<u64>();
+    pub(crate) const SIZE_IN_BYTES: usize = size_of::<u64>();
 
-    pub(crate) const SizeInBits: usize = Self::SizeInBytes * BitsInAByte;
+    pub(crate) const SIZE_IN_BITS: usize = Self::SIZE_IN_BYTES * BITS_IN_A_BYTE;
 
     #[inline(always)]
     pub(crate) fn leading_unset_bits(self) -> NumberOfBits {

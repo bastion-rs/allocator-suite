@@ -68,18 +68,18 @@ impl Shr<usize> for NumberOfBits {
 }
 
 impl NumberOfBits {
-    pub(crate) const Zero: Self = Self(0);
+    pub(crate) const ZERO: Self = Self(0);
 
-    pub(crate) const InBitSetWord: Self = Self(BitSetWord::SizeInBits);
+    pub(crate) const IN_BIT_SET_WORD: Self = Self(BitSetWord::SIZE_IN_BITS);
 
     #[inline(always)]
     pub(crate) fn is_zero(self) -> bool {
-        self == Self::Zero
+        self == Self::ZERO
     }
 
     #[inline(always)]
     pub(crate) fn is_not_zero(self) -> bool {
-        self != Self::Zero
+        self != Self::ZERO
     }
 
     #[inline(always)]
@@ -94,12 +94,12 @@ impl NumberOfBits {
 
     #[inline(always)]
     pub(crate) fn remainder_of_bits_that_do_not_fit_in_a_bit_set_word(self) -> Self {
-        Self(self.0 % BitSetWord::SizeInBits)
+        Self(self.0 % BitSetWord::SIZE_IN_BITS)
     }
 
     #[inline(always)]
     pub(crate) fn round_up_to_number_of_bit_set_words(self) -> NumberOfBitSetWords {
-        NumberOfBitSetWords((self.0 + BitSetWord::SizeInBits - 1) / BitSetWord::SizeInBits)
+        NumberOfBitSetWords((self.0 + BitSetWord::SIZE_IN_BITS - 1) / BitSetWord::SIZE_IN_BITS)
     }
 
     #[inline(always)]
@@ -125,16 +125,16 @@ impl NumberOfBits {
 
     #[inline(always)]
     pub(crate) fn is_one_bit_set_word(self) -> bool {
-        self.0 == BitSetWord::SizeInBits
+        self.0 == BitSetWord::SIZE_IN_BITS
     }
 
     #[inline(always)]
     pub(crate) fn less_than_a_bit_set_word_required(self) -> bool {
-        self.0 < BitSetWord::SizeInBits
+        self.0 < BitSetWord::SIZE_IN_BITS
     }
 
     #[inline(always)]
     pub(crate) fn number_of_bit_set_words_rounded_down(self) -> NumberOfBitSetWords {
-        NumberOfBitSetWords(self.0 / BitSetWord::SizeInBits)
+        NumberOfBitSetWords(self.0 / BitSetWord::SIZE_IN_BITS)
     }
 }

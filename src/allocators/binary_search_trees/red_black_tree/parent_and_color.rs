@@ -15,24 +15,24 @@ impl Default for ParentAndColor {
 }
 
 impl ParentAndColor {
-    const ColorBitmask: usize = 0b1;
+    const COLOR_BITMASK: usize = 0b1;
 
-    const ParentBitmask: usize = !Self::ColorBitmask;
+    const PARENT_BITMASK: usize = !Self::COLOR_BITMASK;
 
     #[inline(always)]
     pub(crate) fn new(parent: NodePointer, color: Color) -> Self {
         debug_assert!(align_of::<Node>() >= 2, "Node needs to be aligned to 2 bytes or more otherwise we can not set the color_bit using unused bits in the parent pointer");
 
-        Self((parent.0 as usize & Self::ParentBitmask) | color.color_bit())
+        Self((parent.0 as usize & Self::PARENT_BITMASK) | color.color_bit())
     }
 
     #[inline(always)]
     pub(crate) fn parent(self) -> NodePointer {
-        NodePointer((self.0 & Self::ParentBitmask) as *const Node)
+        NodePointer((self.0 & Self::PARENT_BITMASK) as *const Node)
     }
 
     #[inline(always)]
     pub(crate) fn color(self) -> Color {
-        unsafe { transmute(self.0 & Self::ColorBitmask) }
+        unsafe { transmute(self.0 & Self::COLOR_BITMASK) }
     }
 }

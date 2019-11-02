@@ -76,10 +76,10 @@ impl<MS: MemorySource> Allocator for BumpAllocator<MS> {
         non_zero_power_of_two_alignment: NonZeroUsize,
     ) -> Result<MemoryAddress, AllocErr> {
         debug_assert!(
-            non_zero_power_of_two_alignment <= Self::MaximumPowerOfTwoAlignment,
+            non_zero_power_of_two_alignment <= Self::MAXIMUM_POWER_OF_TWO_ALIGNMENT,
             "non_zero_power_of_two_alignment `{}` exceeds `{}`",
             non_zero_power_of_two_alignment,
-            Self::MaximumPowerOfTwoAlignment
+            Self::MAXIMUM_POWER_OF_TWO_ALIGNMENT
         );
 
         let next_allocation_at_rounded_up_pointer = self
@@ -167,7 +167,7 @@ impl<MS: MemorySource> LocalAllocator for BumpAllocator<MS> {
 }
 
 impl<MS: MemorySource> BumpAllocator<MS> {
-    const MaximumPowerOfTwoAlignment: NonZeroUsize = non_zero_usize(4096);
+    const MAXIMUM_POWER_OF_TWO_ALIGNMENT: NonZeroUsize = non_zero_usize(4096);
 
     /// New instance wrapping a block of memory.
     #[inline(always)]

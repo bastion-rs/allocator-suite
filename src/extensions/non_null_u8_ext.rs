@@ -136,10 +136,10 @@ pub trait NonNullU8Ext: Sized + Copy + Ord + Debug {
     }
 
     #[doc(hidden)]
-    const BitsInAByte: usize = 8;
+    const BITS_IN_ABYTE: usize = 8;
 
     #[doc(hidden)]
-    const BitsInAnU64: usize = size_of::<u64>() * Self::BitsInAByte;
+    const BITS_IN_AN_U64: usize = size_of::<u64>() * Self::BITS_IN_ABYTE;
 
     #[doc(hidden)]
     #[inline(always)]
@@ -150,8 +150,8 @@ pub trait NonNullU8Ext: Sized + Copy + Ord + Debug {
     #[doc(hidden)]
     #[inline(always)]
     fn set_middle_bits_of_u64(self, number_of_bits_to_set: usize, number_of_lower_bits: usize) {
-        debug_assert!(number_of_bits_to_set <= Self::BitsInAnU64);
-        debug_assert!(number_of_lower_bits <= Self::BitsInAnU64);
+        debug_assert!(number_of_bits_to_set <= Self::BITS_IN_AN_U64);
+        debug_assert!(number_of_lower_bits <= Self::BITS_IN_AN_U64);
         debug_assert!(
             number_of_bits_to_set <= number_of_lower_bits,
             "number_of_lower_bits `{}` is greater than number_of_bits_to_set `{}`",
@@ -170,7 +170,7 @@ pub trait NonNullU8Ext: Sized + Copy + Ord + Debug {
     #[doc(hidden)]
     #[inline(always)]
     fn set_top_bits_of_u64(self, number_of_bits_to_set: usize) {
-        self.set_middle_bits_of_u64(number_of_bits_to_set, Self::BitsInAnU64 as usize)
+        self.set_middle_bits_of_u64(number_of_bits_to_set, Self::BITS_IN_AN_U64 as usize)
     }
 
     #[doc(hidden)]
@@ -182,8 +182,8 @@ pub trait NonNullU8Ext: Sized + Copy + Ord + Debug {
     #[doc(hidden)]
     #[inline(always)]
     fn unset_middle_bits_of_u64(self, number_of_bits_to_unset: usize, number_of_lower_bits: usize) {
-        debug_assert!(number_of_bits_to_unset <= Self::BitsInAnU64);
-        debug_assert!(number_of_lower_bits <= Self::BitsInAnU64);
+        debug_assert!(number_of_bits_to_unset <= Self::BITS_IN_AN_U64);
+        debug_assert!(number_of_lower_bits <= Self::BITS_IN_AN_U64);
         debug_assert!(
             number_of_bits_to_unset <= number_of_lower_bits,
             "number_of_lower_bits `{}` is greater than number_of_bits_to_unset `{}`",
@@ -203,7 +203,7 @@ pub trait NonNullU8Ext: Sized + Copy + Ord + Debug {
     #[doc(hidden)]
     #[inline(always)]
     fn unset_top_bits_of_u64(self, number_of_bits_to_unset: usize) {
-        self.unset_middle_bits_of_u64(number_of_bits_to_unset, Self::BitsInAnU64 as usize)
+        self.unset_middle_bits_of_u64(number_of_bits_to_unset, Self::BITS_IN_AN_U64 as usize)
     }
 
     /// Is aligned to.

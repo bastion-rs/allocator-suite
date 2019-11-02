@@ -12,7 +12,7 @@ use std::fmt::Debug;
 pub(crate) struct BinarySearchTreesWithCachedKnowledgeOfFirstChild {
     binary_search_trees_of_free_blocks_sorted_by_ascending_memory_address_and_indexed_by_power_of_two_exponent_less_smallest_power_of_two:
         [UnsafeCell<BinarySearchTreeWithCachedKnowledgeOfFirstChild>;
-            Self::NumberOfBinarySearchTrees],
+            Self::NUMBER_OF_BINARY_SEARCH_TREES],
 }
 
 impl Debug for BinarySearchTreesWithCachedKnowledgeOfFirstChild {
@@ -20,7 +20,7 @@ impl Debug for BinarySearchTreesWithCachedKnowledgeOfFirstChild {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         writeln!(f)?;
         writeln!(f, "\tBlockSize => Count  Cached first child is null?")?;
-        for binary_search_tree_index in 0..Self::NumberOfBinarySearchTrees {
+        for binary_search_tree_index in 0..Self::NUMBER_OF_BINARY_SEARCH_TREES {
             let block_size = Self::binary_search_tree_index_to_block_size(binary_search_tree_index);
             let binary_search_tree = self.binary_search_trees_of_free_blocks_sorted_by_ascending_memory_address_and_indexed_by_power_of_two_exponent_less_smallest_power_of_two[binary_search_tree_index].get().mutable_reference();
 
@@ -55,27 +55,27 @@ impl Default for BinarySearchTreesWithCachedKnowledgeOfFirstChild {
 }
 
 impl BinarySearchTreesWithCachedKnowledgeOfFirstChild {
-    const SmallestInclusivePowerOfTwoExponent: NonZeroUsize =
+    const SMALLEST_INCLUSIVE_POWER_OF_TWO_EXPONENT: NonZeroUsize =
         Self::logarithm_base2(size_of::<Node>());
 
-    pub(crate) const NumberOfBinarySearchTrees: usize = 16;
+    pub(crate) const NUMBER_OF_BINARY_SEARCH_TREES: usize = 16;
 
-    const LargestInclusiveBinarySearchTreeIndex: usize = Self::NumberOfBinarySearchTrees - 1;
+    const LARGEST_INCLUSIVE_BINARY_SEARCH_TREE_INDEX: usize = Self::NUMBER_OF_BINARY_SEARCH_TREES - 1;
 
-    const LargestInclusivePowerOfTwoExponent: NonZeroUsize =
+    const LARGEST_INCLUSIVE_POWER_OF_TWO_EXPONENT: NonZeroUsize =
         non_zero_usize(Self::binary_search_tree_index_to_power_of_two_exponent(
-            Self::LargestInclusiveBinarySearchTreeIndex,
+            Self::LARGEST_INCLUSIVE_BINARY_SEARCH_TREE_INDEX,
         ));
 
-    pub(crate) const MinimumAllocationSize: NonZeroUsize =
-        non_zero_usize(1 << Self::SmallestInclusivePowerOfTwoExponent.get());
+    pub(crate) const MINIMUM_ALLOCATION_SIZE: NonZeroUsize =
+        non_zero_usize(1 << Self::SMALLEST_INCLUSIVE_POWER_OF_TWO_EXPONENT.get());
 
-    pub(crate) const MaximumAllocationSize: NonZeroUsize =
-        non_zero_usize(1 << Self::LargestInclusivePowerOfTwoExponent.get());
+    pub(crate) const MAXIMUM_ALLOCATION_SIZE: NonZeroUsize =
+        non_zero_usize(1 << Self::LARGEST_INCLUSIVE_POWER_OF_TWO_EXPONENT.get());
 
-    pub(crate) const MinimumAlignment: NonZeroUsize = Self::MinimumAllocationSize;
+    pub(crate) const MINIMUM_ALIGNMENT: NonZeroUsize = Self::MINIMUM_ALLOCATION_SIZE;
 
-    const MaximumAlignment: NonZeroUsize = Self::MaximumAllocationSize;
+    const MAXIMUM_ALIGNMENT: NonZeroUsize = Self::MAXIMUM_ALLOCATION_SIZE;
 
     #[inline(always)]
     const fn logarithm_base2(value: usize) -> NonZeroUsize {
@@ -90,24 +90,24 @@ impl BinarySearchTreesWithCachedKnowledgeOfFirstChild {
             "A block_size was not passed"
         );
         debug_assert!(
-            block_size >= Self::MinimumAllocationSize,
+            block_size >= Self::MINIMUM_ALLOCATION_SIZE,
             "Block size was too small"
         );
         debug_assert!(
-            block_size <= Self::MaximumAllocationSize,
+            block_size <= Self::MAXIMUM_ALLOCATION_SIZE,
             "Block size was too large"
         );
 
         let power_of_two_exponent = logarithm_base2_as_usize(block_size.get());
 
-        power_of_two_exponent - Self::SmallestInclusivePowerOfTwoExponent.get()
+        power_of_two_exponent - Self::SMALLEST_INCLUSIVE_POWER_OF_TWO_EXPONENT.get()
     }
 
     #[inline(always)]
     const fn binary_search_tree_index_to_power_of_two_exponent(
         binary_search_tree_index: usize,
     ) -> usize {
-        Self::SmallestInclusivePowerOfTwoExponent.get() + binary_search_tree_index
+        Self::SMALLEST_INCLUSIVE_POWER_OF_TWO_EXPONENT.get() + binary_search_tree_index
     }
 
     #[inline(always)]
@@ -117,29 +117,29 @@ impl BinarySearchTreesWithCachedKnowledgeOfFirstChild {
 
     #[inline(always)]
     pub(crate) fn size_is_less_than_minimum_allocation_size(size: usize) -> bool {
-        size < Self::MinimumAllocationSize.get()
+        size < Self::MINIMUM_ALLOCATION_SIZE.get()
     }
 
     #[inline(always)]
     pub(crate) fn size_is_greater_than_minimum_allocation_size(size: usize) -> bool {
-        size >= Self::MinimumAllocationSize.get()
+        size >= Self::MINIMUM_ALLOCATION_SIZE.get()
     }
 
     #[inline(always)]
     pub(crate) fn size_exceeds_maximum_allocation_size(non_zero_size: NonZeroUsize) -> bool {
-        non_zero_size > Self::MaximumAllocationSize
+        non_zero_size > Self::MAXIMUM_ALLOCATION_SIZE
     }
 
     #[inline(always)]
     pub(crate) fn alignment_exceeds_maximum_alignment(
         non_zero_power_of_two_alignment: NonZeroUsize,
     ) -> bool {
-        non_zero_power_of_two_alignment > Self::MaximumAlignment
+        non_zero_power_of_two_alignment > Self::MAXIMUM_ALIGNMENT
     }
 
     #[inline(always)]
     pub(crate) fn floor_size_to_minimum(unfloored_non_zero_size: NonZeroUsize) -> NonZeroUsize {
-        max(unfloored_non_zero_size, Self::MinimumAllocationSize)
+        max(unfloored_non_zero_size, Self::MINIMUM_ALLOCATION_SIZE)
     }
 
     #[inline(always)]
@@ -148,7 +148,7 @@ impl BinarySearchTreesWithCachedKnowledgeOfFirstChild {
     ) -> NonZeroUsize {
         max(
             unfloored_non_zero_power_of_two_alignment,
-            Self::MinimumAlignment,
+            Self::MINIMUM_ALIGNMENT,
         )
     }
 
@@ -158,7 +158,7 @@ impl BinarySearchTreesWithCachedKnowledgeOfFirstChild {
         binary_search_tree_index: usize,
     ) -> &mut BinarySearchTreeWithCachedKnowledgeOfFirstChild {
         debug_assert!(
-            binary_search_tree_index < Self::NumberOfBinarySearchTrees,
+            binary_search_tree_index < Self::NUMBER_OF_BINARY_SEARCH_TREES,
             "binary_search_tree_index `{}` is too large",
             binary_search_tree_index
         );
@@ -184,11 +184,11 @@ impl BinarySearchTreesWithCachedKnowledgeOfFirstChild {
             "difference `{}` is too small to be a block"
         );
 
-        const BitsInAByte: usize = 8;
-        const BitsInAnUsize: usize = size_of::<usize>() * BitsInAByte;
-        const ZeroBased: usize = BitsInAnUsize - 1;
+        const BITS_IN_A_BYTE: usize = 8;
+        const BITS_IN_A_USIZE: usize = size_of::<usize>() * BITS_IN_A_BYTE;
+        const ZERO_BASED: usize = BITS_IN_A_USIZE - 1;
 
-        let shift = ZeroBased - difference.leading_zeros() as usize;
+        let shift = ZERO_BASED - difference.leading_zeros() as usize;
 
         (1 << shift).non_zero()
     }
