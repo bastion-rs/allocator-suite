@@ -24,8 +24,6 @@ mod switchable_allocator_tests {
 
     #[test]
     pub fn switchable_generation() {
-        use crate::switchable_allocator_tests::GLOBAL;
-
         let _vec = Vec::<usize>::with_capacity(1234);
     }
 }
