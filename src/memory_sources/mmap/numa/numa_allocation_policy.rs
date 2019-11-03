@@ -65,7 +65,7 @@ impl Default for NumaAllocationPolicy {
 impl NumaAllocationPolicy {
     #[cfg(any(target_os = "android", target_os = "linux"))]
     #[inline(always)]
-    fn values(&self) -> (i32, (i32, Option<usize>, usize)) {
+    pub(crate) fn values(&self) -> (i32, (i32, Option<usize>, usize)) {
         use self::NumaAllocationPolicy::*;
 
         match *self {

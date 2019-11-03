@@ -24,4 +24,14 @@ impl<CoroutineLocalAllocator: LocalAllocator, ThreadLocalAllocator: LocalAllocat
             thread_local_allocator: None,
         }
     }
+
+    #[doc(hidden)]
+    #[inline(always)]
+    pub const fn thread_local_first() -> Self {
+        Self {
+            current_allocator_in_use: CurrentAllocatorInUse::ThreadLocal,
+            coroutine_local_allocator: None,
+            thread_local_allocator: None,
+        }
+    }
 }

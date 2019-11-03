@@ -1,3 +1,13 @@
+use crate::memory_sources::mmap::numa::numa_allocation_policy::NumaAllocationPolicy;
+use libc::c_void;
+use std::ptr::null;
+use crate::memory_address::MemoryAddress;
+use std::alloc::AllocErr;
+#[cfg(any(target_os = "android", target_os = "linux"))]
+use syscall_alt::syscalls::Syscall;
+#[cfg(any(target_os = "android", target_os = "linux"))]
+use libc::MAP_HUGETLB;
+
 /// Represents settings for NUMA allocation.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct NumaSettings {

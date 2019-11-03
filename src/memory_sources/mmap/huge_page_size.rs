@@ -1,3 +1,6 @@
+#[cfg(any(target_os = "android", target_os = "linux"))]
+use libc::MAP_HUGETLB;
+
 /// Request that an allocation uses huge pages.
 ///
 /// The allocation being requested has to be aligned to the size requested, viz it is best to only make allocations that use the configured huge page size.

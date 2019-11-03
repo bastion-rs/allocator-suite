@@ -87,6 +87,18 @@ impl MemoryMapSource {
         }
     }
 
+    /// Configure with NUMA settings passed down
+    #[inline(always)]
+    pub fn with_numa_settings(ns: NumaSettings) -> Self {
+        Self::new(
+            true,
+            true,
+            true,
+            false,
+            HugePageSize::default(),
+            Some(ns))
+    }
+
     /// `size` is rounded up to system page size.
     #[inline(always)]
     pub(crate) fn mmap_memory(&self, size: usize) -> Result<MemoryAddress, AllocErr> {
