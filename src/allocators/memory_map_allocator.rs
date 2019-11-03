@@ -16,7 +16,7 @@ use std::num::NonZeroUsize;
 ///
 /// When dropped, any memory allocated with this allocator is ***NOT*** freed.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct MemoryMapAllocator(MemoryMapSource);
+pub struct MemoryMapAllocator(pub MemoryMapSource);
 
 impl Allocator for MemoryMapAllocator {
     #[inline(always)]

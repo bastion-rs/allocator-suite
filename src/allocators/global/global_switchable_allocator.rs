@@ -5,7 +5,7 @@ use std::alloc::{Alloc, GlobalAlloc};
 
 /// A trait that all such allocators implement.
 ///
-/// Create a new instance using the macro `global_thread_and_coroutine_switchable_allocator`.
+/// Create a new instance using the macro `switchable_allocator`.
 pub trait GlobalSwitchableAllocator: Sync + GlobalAlloc + Alloc + Allocator {
     /// Type of the coroutine local allocator.
     type CoroutineLocalAllocator: LocalAllocator;
