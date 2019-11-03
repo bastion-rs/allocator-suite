@@ -1,6 +1,6 @@
 [package]
 name = "allocator-suite"
-version = "0.1.2"
+version = "0.1.3-alpha.0"
 authors = ["Mahmut Bulut <vertexclique@gmail.com>"]
 description = "Allocator Suite for various allocation types"
 keywords = ["allocator", "memory", "memory-management", "mmap", "numa"]
