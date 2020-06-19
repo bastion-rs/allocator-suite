@@ -17,6 +17,3 @@ either = "^1.5"
 
 [target.'cfg(unix)'.dependencies]
 libc = "^0.2.50"
-
-[target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
-syscall-alt = "^0.0.14"

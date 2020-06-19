@@ -90,13 +90,7 @@ impl MemoryMapSource {
     /// Configure with NUMA settings passed down
     #[inline(always)]
     pub fn with_numa_settings(ns: NumaSettings) -> Self {
-        Self::new(
-            true,
-            true,
-            true,
-            false,
-            HugePageSize::default(),
-            Some(ns))
+        Self::new(true, true, true, false, HugePageSize::default(), Some(ns))
     }
 
     /// `size` is rounded up to system page size.
@@ -231,7 +225,11 @@ impl MemoryMapSource {
 
     #[inline(always)]
     fn cast_address(address: *mut c_void) -> MemoryAddress {
-        address.non_null().cast::<u8>()
+        use std::convert::TryInto;
+        match address.non_null().try_into::<NonNull<u8>>() {
+            Ok(mem) => mem,
+            Err(stuff) => panic!()
+        }
     }
 
     #[allow(unused_variables)]
@@ -313,12 +311,12 @@ impl MemoryMapSource {
     #[cfg(any(target_os = "android", target_os = "linux"))]
     #[inline(always)]
     fn madvise_flags(huge_page_size: HugePageSize) -> i32 {
-        const madvise_flags: i32 = MADV_DONTDUMP;
+        const MADVISE_FLAGS: i32 = MADV_DONTDUMP;
 
         if huge_page_size != HugePageSize::None {
-            madvise_flags | MADV_HUGEPAGE
+            MADVISE_FLAGS | MADV_HUGEPAGE
         } else {
-            madvise_flags
+            MADVISE_FLAGS
         }
     }
 }

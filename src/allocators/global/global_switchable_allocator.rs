@@ -1,12 +1,12 @@
 use crate::allocators::allocator::Allocator;
 use crate::allocators::global::current_allocator_in_use::CurrentAllocatorInUse;
 use crate::allocators::global::local_allocator::LocalAllocator;
-use std::alloc::{Alloc, GlobalAlloc};
+use std::alloc::{AllocRef, GlobalAlloc};
 
 /// A trait that all such allocators implement.
 ///
 /// Create a new instance using the macro `switchable_allocator`.
-pub trait GlobalSwitchableAllocator: Sync + GlobalAlloc + Alloc + Allocator {
+pub trait GlobalSwitchableAllocator: Sync + GlobalAlloc + AllocRef + Allocator {
     /// Type of the coroutine local allocator.
     type CoroutineLocalAllocator: LocalAllocator;
 

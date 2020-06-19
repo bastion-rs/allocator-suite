@@ -13,6 +13,5 @@ pub mod prelude {
     pub use super::local_allocator::*;
     pub use super::memory_range::*;
     pub use super::per_thread_state::*;
-    #[macro_use]
     pub use super::switchable_allocator::*;
 }

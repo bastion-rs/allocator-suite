@@ -1,24 +1,24 @@
 use super::extensions::prelude::*;
 use crate::allocators::allocator::Allocator;
 use crate::memory_address::MemoryAddress;
-use std::alloc::{Alloc, AllocErr, Layout};
+use std::alloc::{AllocErr, GlobalAlloc, Layout};
 use std::cell::UnsafeCell;
 use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Formatter;
 use std::num::NonZeroUsize;
-use std::ops::Deref;
+use std::{ops::Deref, ptr::NonNull};
 
 /// Adapts implementations of `Alloc` to `Allocator`.
-pub struct AllocToAllocatorAdaptor<A: Alloc>(UnsafeCell<A>);
+pub struct AllocToAllocatorAdaptor<A: GlobalAlloc>(UnsafeCell<A>);
 
-impl<A: Alloc> Debug for AllocToAllocatorAdaptor<A> {
+impl<A: GlobalAlloc> Debug for AllocToAllocatorAdaptor<A> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "AllocToAllocatorAdaptor")
     }
 }
 
-impl<A: Alloc> Deref for AllocToAllocatorAdaptor<A> {
+impl<A: GlobalAlloc> Deref for AllocToAllocatorAdaptor<A> {
     type Target = A;
 
     #[inline(always)]
@@ -27,17 +27,18 @@ impl<A: Alloc> Deref for AllocToAllocatorAdaptor<A> {
     }
 }
 
-impl<A: Alloc> Allocator for AllocToAllocatorAdaptor<A> {
+impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
     #[inline(always)]
     fn allocate(
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
     ) -> Result<MemoryAddress, AllocErr> {
-        unsafe {
+        NonNull::new(unsafe {
             self.mutable_reference()
                 .alloc(Self::layout(non_zero_size, non_zero_power_of_two_alignment))
-        }
+        })
+        .ok_or(AllocErr)
     }
 
     #[inline(always)]
@@ -49,7 +50,7 @@ impl<A: Alloc> Allocator for AllocToAllocatorAdaptor<A> {
     ) {
         unsafe {
             self.mutable_reference().dealloc(
-                current_memory,
+                current_memory.as_ptr(),
                 Self::layout(non_zero_size, non_zero_power_of_two_alignment),
             )
         }
@@ -63,13 +64,14 @@ impl<A: Alloc> Allocator for AllocToAllocatorAdaptor<A> {
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
     ) -> Result<MemoryAddress, AllocErr> {
-        unsafe {
+        NonNull::new(unsafe {
             self.mutable_reference().realloc(
-                current_memory,
+                current_memory.as_ptr(),
                 Self::layout(non_zero_current_size, non_zero_power_of_two_alignment),
                 non_zero_new_size.get(),
             )
-        }
+        })
+        .ok_or(AllocErr)
     }
 
     #[inline(always)]
@@ -80,17 +82,18 @@ impl<A: Alloc> Allocator for AllocToAllocatorAdaptor<A> {
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
     ) -> Result<MemoryAddress, AllocErr> {
-        unsafe {
+        NonNull::new(unsafe {
             self.mutable_reference().realloc(
-                current_memory,
+                current_memory.as_ptr(),
                 Self::layout(non_zero_current_size, non_zero_power_of_two_alignment),
                 non_zero_new_size.get(),
             )
-        }
+        })
+        .ok_or(AllocErr)
     }
 }
 
-impl<A: Alloc> AllocToAllocatorAdaptor<A> {
+impl<A: GlobalAlloc> AllocToAllocatorAdaptor<A> {
     #[inline(always)]
     fn mutable_reference(&self) -> &mut A {
         self.0.get().mutable_reference()

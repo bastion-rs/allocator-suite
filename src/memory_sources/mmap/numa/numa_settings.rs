@@ -1,12 +1,6 @@
 use crate::memory_sources::mmap::numa::numa_allocation_policy::NumaAllocationPolicy;
-use libc::c_void;
+use libc::{c_void, SYS_mbind};
 use std::ptr::null;
-use crate::memory_address::MemoryAddress;
-use std::alloc::AllocErr;
-#[cfg(any(target_os = "android", target_os = "linux"))]
-use syscall_alt::syscalls::Syscall;
-#[cfg(any(target_os = "android", target_os = "linux"))]
-use libc::MAP_HUGETLB;
 
 /// Represents settings for NUMA allocation.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
@@ -70,6 +64,7 @@ impl NumaSettings {
             self.mbind_maxnode,
             self.mbind_flags,
         );
+
         if likely!(error_number >= 0) {
             Ok(())
         } else if likely!(error_number < 0) {
@@ -113,15 +108,16 @@ impl NumaSettings {
         maxnode: usize,
         flags: u32,
     ) -> isize {
+        let result: isize;
         unsafe {
-            Syscall::mbind.syscall6(
-                start as isize,
-                len as isize,
-                mode as isize,
-                nodemask as isize,
-                maxnode as isize,
-                flags as isize,
+            llvm_asm!(
+                    "syscall"
+            : "={rax}"(result)
+            : "{rax}"(SYS_mbind), "{rdi}"(start), "{rsi}"(len), "{rdx}"(mode), "{r10}"(nodemask), "{r8}"(maxnode), "{r9}"(flags)
+            : "rcx", "r11", "memory"
+            : "volatile"
             )
         }
+        result
     }
 }
