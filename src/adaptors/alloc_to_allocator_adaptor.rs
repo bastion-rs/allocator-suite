@@ -7,7 +7,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Formatter;
 use std::num::NonZeroUsize;
-use std::ops::Deref;
+use std::{ops::Deref, ptr::NonNull};
 
 /// Adapts implementations of `Alloc` to `Allocator`.
 pub struct AllocToAllocatorAdaptor<A: GlobalAlloc>(UnsafeCell<A>);
@@ -34,10 +34,11 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
     ) -> Result<MemoryAddress, AllocErr> {
-        unsafe {
+        NonNull::new(unsafe {
             self.mutable_reference()
                 .alloc(Self::layout(non_zero_size, non_zero_power_of_two_alignment))
-        }
+        })
+        .ok_or(AllocErr)
     }
 
     #[inline(always)]
@@ -49,7 +50,7 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
     ) {
         unsafe {
             self.mutable_reference().dealloc(
-                current_memory,
+                current_memory.as_ptr(),
                 Self::layout(non_zero_size, non_zero_power_of_two_alignment),
             )
         }
@@ -63,13 +64,14 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
     ) -> Result<MemoryAddress, AllocErr> {
-        unsafe {
+        NonNull::new(unsafe {
             self.mutable_reference().realloc(
-                current_memory,
+                current_memory.as_ptr(),
                 Self::layout(non_zero_current_size, non_zero_power_of_two_alignment),
                 non_zero_new_size.get(),
             )
-        }
+        })
+        .ok_or(AllocErr)
     }
 
     #[inline(always)]
@@ -80,13 +82,14 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
     ) -> Result<MemoryAddress, AllocErr> {
-        unsafe {
+        NonNull::new(unsafe {
             self.mutable_reference().realloc(
-                current_memory,
+                current_memory.as_ptr(),
                 Self::layout(non_zero_current_size, non_zero_power_of_two_alignment),
                 non_zero_new_size.get(),
             )
-        }
+        })
+        .ok_or(AllocErr)
     }
 }
 

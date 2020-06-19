@@ -15,7 +15,6 @@ pub mod usize_ext;
 pub mod prelude {
     pub(crate) use super::layout_hack::*;
 
-    pub(crate) use super::non_null_ext::*;
     pub(crate) use super::non_null_pointer::*;
     pub(crate) use super::non_null_u8_ext::*;
     pub(crate) use super::non_zero_usize::*;
