@@ -1,7 +1,7 @@
 use super::extensions::prelude::*;
 use crate::allocators::allocator::Allocator;
 use crate::memory_address::MemoryAddress;
-use std::alloc::{Alloc, AllocErr, Layout};
+use std::alloc::{AllocErr, GlobalAlloc, Layout};
 use std::cell::UnsafeCell;
 use std::fmt;
 use std::fmt::Debug;
@@ -10,15 +10,15 @@ use std::num::NonZeroUsize;
 use std::ops::Deref;
 
 /// Adapts implementations of `Alloc` to `Allocator`.
-pub struct AllocToAllocatorAdaptor<A: Alloc>(UnsafeCell<A>);
+pub struct AllocToAllocatorAdaptor<A: GlobalAlloc>(UnsafeCell<A>);
 
-impl<A: Alloc> Debug for AllocToAllocatorAdaptor<A> {
+impl<A: GlobalAlloc> Debug for AllocToAllocatorAdaptor<A> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "AllocToAllocatorAdaptor")
     }
 }
 
-impl<A: Alloc> Deref for AllocToAllocatorAdaptor<A> {
+impl<A: GlobalAlloc> Deref for AllocToAllocatorAdaptor<A> {
     type Target = A;
 
     #[inline(always)]
@@ -27,7 +27,7 @@ impl<A: Alloc> Deref for AllocToAllocatorAdaptor<A> {
     }
 }
 
-impl<A: Alloc> Allocator for AllocToAllocatorAdaptor<A> {
+impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
     #[inline(always)]
     fn allocate(
         &self,
@@ -90,7 +90,7 @@ impl<A: Alloc> Allocator for AllocToAllocatorAdaptor<A> {
     }
 }
 
-impl<A: Alloc> AllocToAllocatorAdaptor<A> {
+impl<A: GlobalAlloc> AllocToAllocatorAdaptor<A> {
     #[inline(always)]
     fn mutable_reference(&self) -> &mut A {
         self.0.get().mutable_reference()

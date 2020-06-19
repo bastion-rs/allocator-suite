@@ -4,7 +4,7 @@ use crate::extensions::non_null_pointer::non_null_pointer;
 use crate::extensions::prelude::*;
 use crate::extensions::usize_ext::UsizeExt;
 use crate::memory_address::MemoryAddress;
-use std::alloc::{AllocErr, CannotReallocInPlace, Excess, Layout};
+use std::alloc::{AllocErr, Layout};
 use std::fmt::Debug;
 use std::intrinsics::transmute;
 use std::num::NonZeroUsize;
@@ -241,85 +241,5 @@ pub trait Allocator: Debug + Sized {
         new_size: usize,
     ) -> Result<MemoryAddress, AllocErr> {
         self.reallocate(ptr, layout, new_size)
-    }
-
-    #[doc(hidden)]
-    #[inline(always)]
-    unsafe fn alloc_alloc_excess(&self, layout: Layout) -> Result<Excess, AllocErr> {
-        let layout = LayoutHack::access_private_fields(layout);
-        if unlikely!(layout.size_ == 0) {
-            return Ok(Excess(Self::ZERO_SIZED_ALLOCATION, 0));
-        }
-        let size = layout.size_;
-        let non_zero_size = NonZeroUsize::new_unchecked(size);
-
-        let result = self.allocate(non_zero_size, layout.align_);
-
-        // NOTE: AllocErr does not implement `Copy`, but is zero-sized - seems like a Rust API oversight.
-        // Hence the logic transmuting it to a pointer (for an efficient null check), then back to a result.
-        let pointer: *mut u8 = transmute(result);
-        if unlikely!(pointer.is_null()) {
-            Err(AllocErr)
-        } else {
-            Ok(Excess(NonNull::new_unchecked(pointer), size))
-        }
-    }
-
-    #[doc(hidden)]
-    #[inline(always)]
-    unsafe fn alloc_realloc_excess(
-        &self,
-        ptr: MemoryAddress,
-        layout: Layout,
-        new_size: usize,
-    ) -> Result<Excess, AllocErr> {
-        let result = self.reallocate(ptr, layout, new_size);
-
-        // NOTE: AllocErr does not implement `Copy`, but is zero-sized - seems like a Rust API oversight.
-        // Hence the logic transmuting it to a pointer (for an efficient null check), then back to a result.
-        let pointer: *mut u8 = transmute(result);
-        if unlikely!(pointer.is_null()) {
-            Err(AllocErr)
-        } else {
-            Ok(Excess(NonNull::new_unchecked(pointer), new_size))
-        }
-    }
-
-    #[doc(hidden)]
-    #[inline(always)]
-    unsafe fn alloc_grow_in_place(
-        &self,
-        _ptr: MemoryAddress,
-        layout: Layout,
-        new_size: usize,
-    ) -> Result<(), CannotReallocInPlace> {
-        let layout = LayoutHack::access_private_fields(layout);
-        let size_ = layout.size_;
-        debug_assert!(
-            new_size >= size_,
-            "new_size `{}` is less than layout.size_ `{}`",
-            new_size,
-            size_
-        );
-        Err(CannotReallocInPlace)
-    }
-
-    #[doc(hidden)]
-    #[inline(always)]
-    unsafe fn alloc_shrink_in_place(
-        &self,
-        _ptr: MemoryAddress,
-        layout: Layout,
-        new_size: usize,
-    ) -> Result<(), CannotReallocInPlace> {
-        let layout = LayoutHack::access_private_fields(layout);
-        let size_ = layout.size_;
-        debug_assert!(
-            new_size <= size_,
-            "layout.size_ `{}` is less than new_size `{}`",
-            size_,
-            new_size
-        );
-        Err(CannotReallocInPlace)
     }
 }
