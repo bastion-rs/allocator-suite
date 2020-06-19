@@ -46,7 +46,7 @@ unsafe impl<'a, A: 'a + Allocator> AllocRef for AllocatorAdaptor<'a, A> {
     #[inline(always)]
     fn alloc(&mut self, layout: Layout, _init: AllocInit) -> Result<MemoryBlock, AllocErr> {
         let size = layout.size();
-        let ptr = self.alloc_alloc(layout)?;
+        let ptr = unsafe { self.alloc_alloc(layout)? };
         Ok(MemoryBlock { ptr, size })
     }
 

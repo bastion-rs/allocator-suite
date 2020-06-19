@@ -106,15 +106,15 @@ impl NumaSettings {
         nodemask: *const usize,
         maxnode: usize,
         flags: u32,
-    ) -> isize {
+    ) -> usize {
         unsafe {
-            Syscall::mbind.syscall6(
-                start as isize,
-                len as isize,
-                mode as isize,
-                nodemask as isize,
-                maxnode as isize,
-                flags as isize,
+            syscall::syscall5(
+                start as usize,
+                len as usize,
+                mode as usize,
+                nodemask as usize,
+                maxnode as usize,
+                flags as usize,
             )
         }
     }

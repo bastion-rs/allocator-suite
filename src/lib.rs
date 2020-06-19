@@ -48,7 +48,7 @@ pub mod prelude {
     pub use crate::allocators::binary_search_trees::*;
 
     // Expose macros
-    pub use crate::alloc;
+    pub use crate::alloc_ref;
     pub use crate::choose_allocator;
     pub use crate::global_alloc;
     pub use crate::likely;

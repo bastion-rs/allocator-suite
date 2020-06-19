@@ -40,7 +40,7 @@ macro_rules! switchable_allocator {
 
             /// Std imports
             use std::num::NonZeroUsize;
-            use std::alloc::{Alloc, AllocErr, CannotReallocInPlace, Excess, GlobalAlloc, Layout, System};
+            use std::alloc::{AllocRef, AllocErr, CannotReallocInPlace, Excess, GlobalAlloc, Layout, System};
             use std::mem::replace;
 
             /// Effectively this is a field of `SwitchableAllocator` with a different value for each thread.
@@ -63,8 +63,8 @@ macro_rules! switchable_allocator {
                 global_alloc!();
             }
 
-            unsafe impl Alloc for SwitchableAllocator {
-                alloc!();
+            unsafe impl AllocRef for SwitchableAllocator {
+                alloc_ref!();
             }
 
             impl Allocator for SwitchableAllocator {
