@@ -90,13 +90,7 @@ impl MemoryMapSource {
     /// Configure with NUMA settings passed down
     #[inline(always)]
     pub fn with_numa_settings(ns: NumaSettings) -> Self {
-        Self::new(
-            true,
-            true,
-            true,
-            false,
-            HugePageSize::default(),
-            Some(ns))
+        Self::new(false, false, true, false, HugePageSize::default(), Some(ns))
     }
 
     /// `size` is rounded up to system page size.
@@ -231,7 +225,7 @@ impl MemoryMapSource {
 
     #[inline(always)]
     fn cast_address(address: *mut c_void) -> MemoryAddress {
-        address.non_null().cast::<u8>()
+        address.cast::<u8>().non_null()
     }
 
     #[allow(unused_variables)]
@@ -243,8 +237,10 @@ impl MemoryMapSource {
         allocate_within_first_32_gb: bool,
         huge_page_size: HugePageSize,
     ) -> i32 {
-        #[cfg(target_os = "netbsd")]
-        const MAP_ANONYMOUS: i32 = MAP_ANON;
+        #[cfg(any(target_os = "android", target_os = "netbsd", target_os = "linux"))]
+        const ANONYMOUS: i32 = MAP_ANONYMOUS;
+        #[cfg(not(any(target_os = "android", target_os = "netbsd", target_os = "linux")))]
+        const ANONYMOUS: i32 = 0;
 
         #[cfg(all(target_os = "dragonfly", target_os = "freebsd", target_os = "openbsd"))]
         const OMIT_FROM_CORE_DUMPS: i32 = MAP_NOCORE;
@@ -281,7 +277,7 @@ impl MemoryMapSource {
         )))]
         const ALLOCATE_WITHIN_FIRST32_GB: i32 = 0;
 
-        let map_flags: i32 = MAP_PRIVATE | MAP_ANONYMOUS | OMIT_FROM_CORE_DUMPS;
+        let map_flags: i32 = MAP_PRIVATE | ANONYMOUS | OMIT_FROM_CORE_DUMPS;
 
         let map_flags = if lock { map_flags | LOCKED } else { map_flags };
 
@@ -313,12 +309,12 @@ impl MemoryMapSource {
     #[cfg(any(target_os = "android", target_os = "linux"))]
     #[inline(always)]
     fn madvise_flags(huge_page_size: HugePageSize) -> i32 {
-        const madvise_flags: i32 = MADV_DONTDUMP;
+        const MADVISE_FLAGS: i32 = MADV_DONTDUMP;
 
         if huge_page_size != HugePageSize::None {
-            madvise_flags | MADV_HUGEPAGE
+            MADVISE_FLAGS | MADV_HUGEPAGE
         } else {
-            madvise_flags
+            MADVISE_FLAGS
         }
     }
 }

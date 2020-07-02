@@ -17,7 +17,6 @@ pub mod multiple_binary_search_tree_allocator;
 pub mod prelude {
     pub use super::binary_search_trees::*;
     pub use super::bit_set::*;
-    #[macro_use]
     pub use super::global::*;
 
     pub use super::allocator::*;
