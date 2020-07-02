@@ -1,5 +1,7 @@
 use crate::memory_sources::mmap::numa::numa_allocation_policy::NumaAllocationPolicy;
-use libc::{c_void, SYS_mbind};
+use libc::c_void;
+#[cfg(any(target_os = "android", target_os = "linux"))]
+use libc::SYS_mbind;
 use std::ptr::null;
 
 /// Represents settings for NUMA allocation.
