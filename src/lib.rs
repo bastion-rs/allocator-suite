@@ -5,6 +5,7 @@
 #![feature(thread_local)]
 #![feature(const_fn)]
 #![feature(llvm_asm)]
+#![feature(nonnull_slice_from_raw_parts)]
 
 /// Path prediction macros for likely/unlikely intrinsics
 #[macro_use]

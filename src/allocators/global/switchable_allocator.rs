@@ -29,6 +29,9 @@ macro_rules! switchable_allocator {
             };
 
         pub(crate) mod $mod_name {
+
+            use core::ptr::NonNull;
+
             /// Embeddable macros first
             use allocator_suite::prelude::*;
 
@@ -40,7 +43,7 @@ macro_rules! switchable_allocator {
 
             /// Std imports
             use std::num::NonZeroUsize;
-            use std::alloc::{AllocRef, AllocErr, AllocInit, MemoryBlock, GlobalAlloc, Layout, System};
+            use std::alloc::{AllocRef, AllocErr, GlobalAlloc, Layout, System};
             use std::mem::replace;
 
             /// Effectively this is a field of `SwitchableAllocator` with a different value for each thread.
