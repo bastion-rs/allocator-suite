@@ -1,8 +1,8 @@
+use crate::allocators::allocator::Allocator;
 use crate::memory_address::MemoryAddress;
+use core::ptr::NonNull;
 use std::alloc::{AllocErr, AllocRef, GlobalAlloc, Layout};
 use std::ops::Deref;
-use core::ptr::NonNull;
-use crate::allocators::allocator::Allocator;
 
 use std::num::NonZeroUsize;
 
