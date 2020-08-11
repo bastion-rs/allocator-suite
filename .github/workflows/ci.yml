@@ -60,4 +60,5 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: doc
+        if: ${{ matrix.version == 'nightly' }} # docs will otherwise fail because of the allocator API
         run: cargo doc
