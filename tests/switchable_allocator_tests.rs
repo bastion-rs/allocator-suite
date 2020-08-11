@@ -4,6 +4,7 @@
 #![feature(libstd_sys_internals)]
 #![feature(thread_local)]
 #![feature(const_fn)]
+#![feature(nonnull_slice_from_raw_parts)]
 
 #[cfg(test)]
 mod switchable_allocator_tests {
