@@ -11,7 +11,7 @@ use crate::extensions::prelude::*;
 use crate::memory_address::MemoryAddress;
 use crate::memory_sources::memory_source::MemorySource;
 use either::*;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::cell::Cell;
 use std::num::NonZeroUsize;
 
@@ -45,7 +45,7 @@ impl<MS: MemorySource> Allocator for BitSetAllocator<MS> {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         let number_of_bits_required = self.number_of_bits_required(non_zero_size);
 
         let power_of_two_exponent = if self
@@ -60,7 +60,7 @@ impl<MS: MemorySource> Allocator for BitSetAllocator<MS> {
             let alignment_exceeds_that_which_can_be_accommodated_in_one_bit_set_word =
                 power_of_two_exponent > BitSetWord::SIZE_IN_BITS;
             if unlikely!(alignment_exceeds_that_which_can_be_accommodated_in_one_bit_set_word) {
-                return Err(AllocErr);
+                return Err(AllocError);
             }
 
             power_of_two_exponent
@@ -143,7 +143,7 @@ impl<MS: MemorySource> Allocator for BitSetAllocator<MS> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         let current_number_of_bits_required = self.number_of_bits_required(non_zero_current_size);
         let new_number_of_bits_required = self.number_of_bits_required(non_zero_new_size);
 
@@ -192,7 +192,7 @@ impl<MS: MemorySource> Allocator for BitSetAllocator<MS> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         let current_number_of_bits_required = self.number_of_bits_required(non_zero_current_size);
         let new_number_of_bits_required = self.number_of_bits_required(non_zero_new_size);
 
@@ -227,7 +227,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
     pub fn new_by_amount_8(
         memory_source: MS,
         memory_source_size: NonZeroUsize,
-    ) -> Result<Self, AllocErr> {
+    ) -> Result<Self, AllocError> {
         Self::new_by_amount(memory_source, 8usize.non_zero(), memory_source_size)
     }
 
@@ -236,7 +236,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
     pub fn new_by_amount_16(
         memory_source: MS,
         memory_source_size: NonZeroUsize,
-    ) -> Result<Self, AllocErr> {
+    ) -> Result<Self, AllocError> {
         Self::new_by_amount(memory_source, 16usize.non_zero(), memory_source_size)
     }
 
@@ -245,7 +245,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
     pub fn new_by_amount_32(
         memory_source: MS,
         memory_source_size: NonZeroUsize,
-    ) -> Result<Self, AllocErr> {
+    ) -> Result<Self, AllocError> {
         Self::new_by_amount(memory_source, 32usize.non_zero(), memory_source_size)
     }
 
@@ -255,7 +255,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
         memory_source: MS,
         block_size: NonZeroUsize,
         memory_source_size: NonZeroUsize,
-    ) -> Result<Self, AllocErr> {
+    ) -> Result<Self, AllocError> {
         let number_of_blocks =
             ((memory_source_size.get() + (block_size.get() - 1)) / block_size.get()).non_zero();
 
@@ -268,7 +268,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
         memory_source: MS,
         block_size: NonZeroUsize,
         number_of_blocks: NonZeroUsize,
-    ) -> Result<Self, AllocErr> {
+    ) -> Result<Self, AllocError> {
         debug_assert!(
             block_size.is_power_of_two(),
             "block_size `{:?}` must be a power of 2",
@@ -342,7 +342,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
         &self,
         number_of_bits_required: NumberOfBits,
         power_of_two_exponent: usize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         debug_assert!(number_of_bits_required.is_not_zero());
 
         macro_rules! scan
@@ -404,7 +404,7 @@ impl<MS: MemorySource> BitSetAllocator<MS> {
             callback
         );
 
-        Err(AllocErr)
+        Err(AllocError)
     }
 
     #[inline(always)]

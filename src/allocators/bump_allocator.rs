@@ -6,7 +6,7 @@ use crate::extensions::non_zero_usize::non_zero_usize;
 use crate::extensions::prelude::*;
 use crate::memory_address::MemoryAddress;
 use crate::memory_sources::memory_source::MemorySource;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::cell::Cell;
 use std::fmt::Debug;
 use std::intrinsics::transmute;
@@ -55,14 +55,14 @@ macro_rules! allocation_ends_at_pointer
 				let pointer: *mut u8 = unsafe { transmute($allocation_from.checked_add(size)) };
 				if unlikely!(pointer.is_null())
 				{
-					return Err(AllocErr)
+					return Err(AllocError)
 				}
 				unsafe { transmute(pointer) }
 			};
 
 			if unlikely!(allocation_ends_at_pointer > $self.ends_at_pointer)
 			{
-				return Err(AllocErr)
+				return Err(AllocError)
 			}
 
 			allocation_ends_at_pointer
@@ -76,7 +76,7 @@ impl<MS: MemorySource> Allocator for BumpAllocator<MS> {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         debug_assert!(
             non_zero_power_of_two_alignment <= Self::MAXIMUM_POWER_OF_TWO_ALIGNMENT,
             "non_zero_power_of_two_alignment `{}` exceeds `{}`",
@@ -121,7 +121,7 @@ impl<MS: MemorySource> Allocator for BumpAllocator<MS> {
         _non_zero_power_of_two_alignment: NonZeroUsize,
         _non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         if unlikely!(current_memory == self.most_recent_allocation_pointer.get()) {
             let size = non_zero_new_size.get();
             self.next_allocation_at_pointer
@@ -138,7 +138,7 @@ impl<MS: MemorySource> Allocator for BumpAllocator<MS> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         if unlikely!(current_memory == self.most_recent_allocation_pointer.get()) {
             self.next_allocation_at_pointer
                 .set(allocation_ends_at_pointer!(
@@ -151,7 +151,7 @@ impl<MS: MemorySource> Allocator for BumpAllocator<MS> {
             let result = self.allocate(non_zero_new_size, non_zero_power_of_two_alignment);
             let pointer: *mut u8 = unsafe { transmute(result) };
             if unlikely!(pointer.is_null()) {
-                Err(AllocErr)
+                Err(AllocError)
             } else {
                 let current_size = non_zero_current_size.get();
                 unsafe { pointer.copy_from(current_memory.as_ptr(), current_size) };
@@ -173,7 +173,7 @@ impl<MS: MemorySource> BumpAllocator<MS> {
 
     /// New instance wrapping a block of memory.
     #[inline(always)]
-    pub fn new(memory_source: MS, memory_source_size: NonZeroUsize) -> Result<Self, AllocErr> {
+    pub fn new(memory_source: MS, memory_source_size: NonZeroUsize) -> Result<Self, AllocError> {
         let allocations_start_from = memory_source.obtain(memory_source_size)?;
 
         Ok(Self {

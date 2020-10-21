@@ -1,5 +1,5 @@
 use crate::memory_address::MemoryAddress;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::fmt::Debug;
 use std::num::NonZeroUsize;
 
@@ -10,7 +10,7 @@ pub trait MemorySource: Debug {
     /// Obtain memory from the operating system, say.
     ///
     /// Alignment will be whatever is appropriate, but is likely to be quite large.
-    fn obtain(&self, non_zero_size: NonZeroUsize) -> Result<MemoryAddress, AllocErr>;
+    fn obtain(&self, non_zero_size: NonZeroUsize) -> Result<MemoryAddress, AllocError>;
 
     /// Release memory to the operating system, say.
     ///

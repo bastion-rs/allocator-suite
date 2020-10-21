@@ -1,7 +1,7 @@
 use crate::allocators::global::global_switchable_allocator::GlobalSwitchableAllocator;
 use crate::memory_address::MemoryAddress;
 use crate::memory_sources::memory_source::MemorySource;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::num::NonZeroUsize;
 use std::ops::Deref;
 use std::rc::Rc;
@@ -30,7 +30,7 @@ impl<MS: MemorySource> Deref for RcMemorySource<MS> {
 
 impl<MS: MemorySource> MemorySource for RcMemorySource<MS> {
     #[inline(always)]
-    fn obtain(&self, non_zero_size: NonZeroUsize) -> Result<MemoryAddress, AllocErr> {
+    fn obtain(&self, non_zero_size: NonZeroUsize) -> Result<MemoryAddress, AllocError> {
         self.0.obtain(non_zero_size)
     }
 

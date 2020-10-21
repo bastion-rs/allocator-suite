@@ -1,7 +1,7 @@
 use crate::allocators::allocator::Allocator;
 use crate::memory_address::MemoryAddress;
 use core::ptr::NonNull;
-use std::alloc::{AllocErr, AllocRef, GlobalAlloc, Layout};
+use std::alloc::{AllocError, AllocRef, GlobalAlloc, Layout};
 use std::ops::Deref;
 
 use std::num::NonZeroUsize;
@@ -44,14 +44,14 @@ unsafe impl<'a, A: 'a + Allocator> GlobalAlloc for AllocatorAdaptor<'a, A> {
 
 unsafe impl<'a, A: 'a + Allocator> AllocRef for AllocatorAdaptor<'a, A> {
     #[inline(always)]
-    fn alloc(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocErr> {
+    fn alloc(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         let size = layout.size();
         let ptr = unsafe { self.alloc_alloc_zeroed(layout) }?;
         Ok(NonNull::slice_from_raw_parts(ptr, size))
     }
 
     #[inline(always)]
-    unsafe fn dealloc(&mut self, ptr: MemoryAddress, layout: Layout) {
+    unsafe fn dealloc(&self, ptr: MemoryAddress, layout: Layout) {
         self.alloc_dealloc(ptr, layout)
     }
 }
@@ -62,7 +62,7 @@ impl<'a, A: 'a + Allocator> Allocator for AllocatorAdaptor<'a, A> {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         self.0
             .allocate(non_zero_size, non_zero_power_of_two_alignment)
     }
@@ -88,7 +88,7 @@ impl<'a, A: 'a + Allocator> Allocator for AllocatorAdaptor<'a, A> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         self.0.growing_reallocate(
             non_zero_new_size,
             non_zero_power_of_two_alignment,
@@ -104,7 +104,7 @@ impl<'a, A: 'a + Allocator> Allocator for AllocatorAdaptor<'a, A> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         self.0.shrinking_reallocate(
             non_zero_new_size,
             non_zero_power_of_two_alignment,

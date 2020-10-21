@@ -1,7 +1,7 @@
 use crate::allocators::global::local_allocator::LocalAllocator;
 use crate::memory_address::MemoryAddress;
 use crate::memory_sources::memory_source::MemorySource;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::fmt;
 use std::fmt::Formatter;
 use std::num::NonZeroUsize;
@@ -60,7 +60,7 @@ impl<MS: MemorySource> Allocator for MultipleBinarySearchTreeAllocator<MS> {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         macro_rules! try_to_allocate_exact_size_block {
             ($node_pointer: ident, $is_cached_first_child: expr, $non_zero_power_of_two_alignment: ident, $binary_search_tree: ident, $_block_size: ident, $_exact_block_size: ident, $_self: ident) => {{
                 let memory_address = $node_pointer.value();
@@ -139,7 +139,7 @@ impl<MS: MemorySource> Allocator for MultipleBinarySearchTreeAllocator<MS> {
                 non_zero_size
             )
         ) {
-            return Err(AllocErr);
+            return Err(AllocError);
         }
 
         if unlikely!(
@@ -147,7 +147,7 @@ impl<MS: MemorySource> Allocator for MultipleBinarySearchTreeAllocator<MS> {
                 non_zero_power_of_two_alignment
             )
         ) {
-            return Err(AllocErr);
+            return Err(AllocError);
         }
 
         // (1) Try to satisfy allocation from a binary search tree of blocks of the same size.
@@ -188,7 +188,7 @@ impl<MS: MemorySource> Allocator for MultipleBinarySearchTreeAllocator<MS> {
             );
         }
 
-        Err(AllocErr)
+        Err(AllocError)
     }
 
     #[inline(always)]
@@ -219,7 +219,7 @@ impl<MS: MemorySource> Allocator for MultipleBinarySearchTreeAllocator<MS> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<NonNull<u8>, AllocErr> {
+    ) -> Result<NonNull<u8>, AllocError> {
         debug_assert!(
             non_zero_new_size > non_zero_current_size,
             "non_zero_new_size `{}` should be greater than non_zero_current_size `{}`",
@@ -274,7 +274,7 @@ impl<MS: MemorySource> Allocator for MultipleBinarySearchTreeAllocator<MS> {
         _non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<NonNull<u8>, AllocErr> {
+    ) -> Result<NonNull<u8>, AllocError> {
         debug_assert!(
             non_zero_new_size < non_zero_current_size,
             "non_zero_new_size `{}` should be less than non_zero_current_size `{}`",
@@ -311,7 +311,7 @@ impl<MS: MemorySource> MultipleBinarySearchTreeAllocator<MS> {
     /// The provided memory must be at least as long as the minimum block size.
     ///
     /// The memory must be aligned to `BinarySearchTreesWithCachedKnowledgeOfFirstChild::MinimumAlignment`, which is the same as the size of a `Node`.
-    pub fn new(memory_source: MS, memory_source_size: NonZeroUsize) -> Result<Self, AllocErr> {
+    pub fn new(memory_source: MS, memory_source_size: NonZeroUsize) -> Result<Self, AllocError> {
         debug_assert_ne!(
             BinarySearchTreesWithCachedKnowledgeOfFirstChild::NUMBER_OF_BINARY_SEARCH_TREES,
             0,

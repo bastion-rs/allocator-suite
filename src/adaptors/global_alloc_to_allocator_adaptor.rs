@@ -1,6 +1,6 @@
 use crate::allocators::allocator::Allocator;
 use crate::memory_address::MemoryAddress;
-use std::alloc::{AllocErr, GlobalAlloc, Layout};
+use std::alloc::{AllocError, GlobalAlloc, Layout};
 use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Formatter;
@@ -32,7 +32,7 @@ impl<GA: GlobalAlloc> Allocator for GlobalAllocToAllocatorAdaptor<GA> {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         unsafe {
             transmute(
                 self.0
@@ -63,7 +63,7 @@ impl<GA: GlobalAlloc> Allocator for GlobalAllocToAllocatorAdaptor<GA> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         unsafe {
             transmute(self.0.realloc(
                 current_memory.as_ptr(),
@@ -80,7 +80,7 @@ impl<GA: GlobalAlloc> Allocator for GlobalAllocToAllocatorAdaptor<GA> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         unsafe {
             transmute(self.0.realloc(
                 current_memory.as_ptr(),

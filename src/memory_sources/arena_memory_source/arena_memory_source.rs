@@ -5,7 +5,7 @@ use crate::memory_address::MemoryAddress;
 use crate::memory_sources::arena_memory_source::slot_index::SlotIndex;
 use crate::memory_sources::arena_memory_source::unallocated_block::UnallocatedBlock;
 use crate::memory_sources::memory_source::MemorySource;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::cell::Cell;
 use std::num::NonZeroUsize;
 
@@ -33,13 +33,13 @@ impl<MS: MemorySource> Drop for ArenaMemorySource<MS> {
 
 impl<MS: MemorySource> MemorySource for ArenaMemorySource<MS> {
     #[inline(always)]
-    fn obtain(&self, non_zero_size: NonZeroUsize) -> Result<MemoryAddress, AllocErr> {
+    fn obtain(&self, non_zero_size: NonZeroUsize) -> Result<MemoryAddress, AllocError> {
         debug_assert!(non_zero_size <= self.block_size);
 
         let next_available_slot_index = self.next_available_slot_index.get();
 
         if unlikely!(next_available_slot_index.is_fully_allocated()) {
-            return Err(AllocErr);
+            return Err(AllocError);
         }
 
         let unallocated_block = self.unallocated_block(next_available_slot_index);
@@ -70,7 +70,7 @@ impl<MS: MemorySource> ArenaMemorySource<MS> {
         block_size: NonZeroUsize,
         memory_source_size: NonZeroUsize,
         block_initializer: impl Fn(MemoryAddress, NonZeroUsize),
-    ) -> Result<Self, AllocErr> {
+    ) -> Result<Self, AllocError> {
         let number_of_blocks =
             ((memory_source_size.get() + (block_size.get() - 1)) / block_size.get()).non_zero();
 
@@ -92,7 +92,7 @@ impl<MS: MemorySource> ArenaMemorySource<MS> {
         block_size: NonZeroUsize,
         number_of_blocks: NonZeroUsize,
         block_initializer: impl Fn(MemoryAddress, NonZeroUsize),
-    ) -> Result<Self, AllocErr> {
+    ) -> Result<Self, AllocError> {
         let memory_source_size = block_size.multiply(number_of_blocks);
 
         let allocations_start_from = memory_source.obtain(memory_source_size)?;
