@@ -237,9 +237,19 @@ impl MemoryMapSource {
         allocate_within_first_32_gb: bool,
         huge_page_size: HugePageSize,
     ) -> i32 {
-        #[cfg(any(target_os = "android", target_os = "netbsd", target_os = "linux"))]
+        #[cfg(any(
+            target_os = "android",
+            target_os = "netbsd",
+            target_os = "linux",
+            target_os = "macos",
+        ))]
         const ANONYMOUS: i32 = MAP_ANONYMOUS;
-        #[cfg(not(any(target_os = "android", target_os = "netbsd", target_os = "linux")))]
+        #[cfg(not(any(
+            target_os = "android",
+            target_os = "netbsd",
+            target_os = "linux",
+            target_os = "macos",
+        )))]
         const ANONYMOUS: i32 = 0;
 
         #[cfg(all(target_os = "dragonfly", target_os = "freebsd", target_os = "openbsd"))]
