@@ -4,7 +4,7 @@ use crate::extensions::non_null_pointer::non_null_pointer;
 use crate::extensions::prelude::*;
 use crate::extensions::usize_ext::UsizeExt;
 use crate::memory_address::MemoryAddress;
-use std::alloc::{AllocErr, Layout};
+use std::alloc::{AllocError, Layout};
 use std::fmt::Debug;
 use std::intrinsics::transmute;
 use std::num::NonZeroUsize;
@@ -20,7 +20,7 @@ pub trait Allocator: Debug + Sized {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr>;
+    ) -> Result<MemoryAddress, AllocError>;
 
     /// Deallocate (free) memory.
     ///
@@ -42,7 +42,7 @@ pub trait Allocator: Debug + Sized {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr>;
+    ) -> Result<MemoryAddress, AllocError>;
 
     /// Reallocate memory by shrinking it.
     ///
@@ -54,7 +54,7 @@ pub trait Allocator: Debug + Sized {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr>;
+    ) -> Result<MemoryAddress, AllocError>;
 
     /// Adapts to a `GlobalAlloc` and `Alloc`.
     #[inline(always)]
@@ -70,7 +70,7 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    fn allocate_zeroed(&self, layout: Layout) -> Result<MemoryAddress, AllocErr> {
+    fn allocate_zeroed(&self, layout: Layout) -> Result<MemoryAddress, AllocError> {
         let maybe_zero_size = layout.size();
 
         if unlikely!(maybe_zero_size == 0) {
@@ -81,7 +81,7 @@ pub trait Allocator: Debug + Sized {
         let non_zero_align = layout.align().non_zero();
         let result = self.allocate(non_zero_size, non_zero_align);
 
-        // NOTE: AllocErr does not implement `Copy`, but is zero-sized - seems like a Rust API oversight.
+        // NOTE: AllocError does not implement `Copy`, but is zero-sized - seems like a Rust API oversight.
         // Hence the logic transmuting it to a pointer (for an efficient null check), then back to a result.
         let pointer = unsafe { transmute::<_, *mut u8>(result) };
 
@@ -99,7 +99,7 @@ pub trait Allocator: Debug + Sized {
         current_memory: MemoryAddress,
         layout: Layout,
         new_size: usize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         let current_size = layout.size();
 
         if unlikely!(current_size == new_size) {
@@ -197,7 +197,7 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn alloc_alloc(&self, layout: Layout) -> Result<MemoryAddress, AllocErr> {
+    unsafe fn alloc_alloc(&self, layout: Layout) -> Result<MemoryAddress, AllocError> {
         if unlikely!(layout.size() == 0) {
             return Ok(Self::ZERO_SIZED_ALLOCATION);
         }
@@ -208,7 +208,7 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn alloc_alloc_zeroed(&self, layout: Layout) -> Result<MemoryAddress, AllocErr> {
+    unsafe fn alloc_alloc_zeroed(&self, layout: Layout) -> Result<MemoryAddress, AllocError> {
         self.allocate_zeroed(layout)
     }
 
@@ -234,7 +234,7 @@ pub trait Allocator: Debug + Sized {
         ptr: MemoryAddress,
         layout: Layout,
         new_size: usize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         self.reallocate(ptr, layout, new_size)
     }
 }

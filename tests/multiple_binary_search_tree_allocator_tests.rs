@@ -7,7 +7,7 @@ mod multiple_binary_search_tree_allocator_tests {
     use allocator_suite::extensions::usize_ext::UsizeExt;
 
     use allocator_suite::prelude::mmap::prelude::MemoryMapSource;
-    use std::alloc::AllocErr;
+    use std::alloc::AllocError;
     use allocator_suite::allocators::binary_search_trees::binary_search_trees_with_cached_knowledge_of_first_child::BinarySearchTreesWithCachedKnowledgeOfFirstChild;
     use allocator_suite::extensions::non_null_u8_ext::NonNullU8Ext;
 
@@ -165,7 +165,7 @@ mod multiple_binary_search_tree_allocator_tests {
     fn assert_allocator_is_empty(allocator: &MultipleBinarySearchTreeAllocator<MemoryMapSource>) {
         assert_eq!(
             allocator.allocate(1.non_zero(), 1.non_zero()),
-            Err(AllocErr),
+            Err(AllocError),
             "Allocator was not empty"
         );
     }

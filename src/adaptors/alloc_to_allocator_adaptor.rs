@@ -1,7 +1,7 @@
 use super::extensions::prelude::*;
 use crate::allocators::allocator::Allocator;
 use crate::memory_address::MemoryAddress;
-use std::alloc::{AllocErr, GlobalAlloc, Layout};
+use std::alloc::{AllocError, GlobalAlloc, Layout};
 use std::cell::UnsafeCell;
 use std::fmt;
 use std::fmt::Debug;
@@ -33,12 +33,12 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         NonNull::new(unsafe {
             self.mutable_reference()
                 .alloc(Self::layout(non_zero_size, non_zero_power_of_two_alignment))
         })
-        .ok_or(AllocErr)
+        .ok_or(AllocError)
     }
 
     #[inline(always)]
@@ -63,7 +63,7 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         NonNull::new(unsafe {
             self.mutable_reference().realloc(
                 current_memory.as_ptr(),
@@ -71,7 +71,7 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
                 non_zero_new_size.get(),
             )
         })
-        .ok_or(AllocErr)
+        .ok_or(AllocError)
     }
 
     #[inline(always)]
@@ -81,7 +81,7 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         NonNull::new(unsafe {
             self.mutable_reference().realloc(
                 current_memory.as_ptr(),
@@ -89,7 +89,7 @@ impl<A: GlobalAlloc> Allocator for AllocToAllocatorAdaptor<A> {
                 non_zero_new_size.get(),
             )
         })
-        .ok_or(AllocErr)
+        .ok_or(AllocError)
     }
 }
 

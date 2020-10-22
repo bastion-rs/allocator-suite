@@ -81,7 +81,7 @@ impl NumaSettings {
     pub(crate) fn post_allocate(
         &self,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         Ok(current_memory)
     }
 

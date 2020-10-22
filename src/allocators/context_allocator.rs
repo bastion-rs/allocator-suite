@@ -7,7 +7,7 @@ use crate::allocators::multiple_binary_search_tree_allocator::MultipleBinarySear
 
 use crate::memory_address::MemoryAddress;
 use crate::memory_sources::memory_source::MemorySource;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::fmt::Debug;
 use std::num::NonZeroUsize;
 
@@ -40,7 +40,7 @@ impl<MS: MemorySource> Allocator for ContextAllocator<MS> {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         use self::ContextAllocator::*;
 
         match *self {
@@ -95,7 +95,7 @@ impl<MS: MemorySource> Allocator for ContextAllocator<MS> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         use self::ContextAllocator::*;
 
         match *self {
@@ -129,7 +129,7 @@ impl<MS: MemorySource> Allocator for ContextAllocator<MS> {
         non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         use self::ContextAllocator::*;
 
         match *self {

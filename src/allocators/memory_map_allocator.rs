@@ -2,7 +2,7 @@ use crate::allocators::allocator::Allocator;
 
 use crate::memory_address::MemoryAddress;
 use crate::memory_sources::mmap::memory_map_source::MemoryMapSource;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::fmt::Debug;
 use std::num::NonZeroUsize;
 
@@ -24,11 +24,11 @@ impl Allocator for MemoryMapAllocator {
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         const ASSUMED_PAGE_SIZE: usize = 4096;
 
         if unlikely!(non_zero_power_of_two_alignment.get() > ASSUMED_PAGE_SIZE) {
-            return Err(AllocErr);
+            return Err(AllocError);
         }
 
         self.0.mmap_memory(non_zero_size.get())
@@ -51,7 +51,7 @@ impl Allocator for MemoryMapAllocator {
         _non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         self.0.mremap_memory(
             current_memory,
             non_zero_current_size.get(),
@@ -66,7 +66,7 @@ impl Allocator for MemoryMapAllocator {
         _non_zero_power_of_two_alignment: NonZeroUsize,
         non_zero_current_size: NonZeroUsize,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         self.0.mremap_memory(
             current_memory,
             non_zero_current_size.get(),

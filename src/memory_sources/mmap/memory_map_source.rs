@@ -5,7 +5,7 @@ use crate::memory_sources::mmap::numa::prelude::*;
 use crate::memory_sources::mmap::prelude::*;
 #[cfg(unix)]
 use ::libc::*;
-use std::alloc::AllocErr;
+use std::alloc::AllocError;
 use std::num::NonZeroUsize;
 use std::ptr::null_mut;
 
@@ -41,7 +41,7 @@ impl Default for MemoryMapSource {
 
 impl MemorySource for MemoryMapSource {
     #[inline(always)]
-    fn obtain(&self, non_zero_size: NonZeroUsize) -> Result<MemoryAddress, AllocErr> {
+    fn obtain(&self, non_zero_size: NonZeroUsize) -> Result<MemoryAddress, AllocError> {
         self.mmap_memory(non_zero_size.get())
     }
 
@@ -95,7 +95,7 @@ impl MemoryMapSource {
 
     /// `size` is rounded up to system page size.
     #[inline(always)]
-    pub(crate) fn mmap_memory(&self, size: usize) -> Result<MemoryAddress, AllocErr> {
+    pub(crate) fn mmap_memory(&self, size: usize) -> Result<MemoryAddress, AllocError> {
         const UNUSED_FILE_DESCRIPTOR: i32 = -1;
         const NO_OFFSET: i64 = 0;
 
@@ -110,7 +110,7 @@ impl MemoryMapSource {
             )
         };
         if unlikely!(result == MAP_FAILED) {
-            Err(AllocErr)
+            Err(AllocError)
         } else {
             #[cfg(any(target_os = "android", target_os = "linux"))]
             self.madvise_memory(result, size)?;
@@ -127,12 +127,12 @@ impl MemoryMapSource {
 
     #[cfg(any(target_os = "android", target_os = "linux"))]
     #[inline(always)]
-    fn madvise_memory(&self, address: *mut c_void, size: usize) -> Result<(), AllocErr> {
+    fn madvise_memory(&self, address: *mut c_void, size: usize) -> Result<(), AllocError> {
         let result = unsafe { madvise(address, size, self.madvise_flags) };
         if likely!(result == 0) {
         } else if likely!(result == -1) {
             Self::munmap_memory(Self::cast_address(address), size);
-            return Err(AllocErr);
+            return Err(AllocError);
         } else {
             unreachable!()
         }
@@ -141,7 +141,7 @@ impl MemoryMapSource {
 
     #[cfg(any(target_os = "android", target_os = "linux"))]
     #[inline(always)]
-    fn numa_memory(&self, address: *mut c_void, size: usize) -> Result<(), AllocErr> {
+    fn numa_memory(&self, address: *mut c_void, size: usize) -> Result<(), AllocError> {
         match self.numa_settings {
             None => Ok(()),
 
@@ -149,7 +149,7 @@ impl MemoryMapSource {
                 let outcome = numa_settings.post_allocate(address, size);
                 if unlikely!(outcome.is_err()) {
                     Self::munmap_memory(Self::cast_address(address), size);
-                    return Err(AllocErr);
+                    return Err(AllocError);
                 }
                 Ok(())
             }
@@ -158,13 +158,13 @@ impl MemoryMapSource {
 
     #[cfg(not(any(target_os = "android", target_os = "netbsd", target_os = "linux")))]
     #[inline(always)]
-    fn mlock_memory(&self, address: *mut c_void, size: usize) -> Result<(), AllocErr> {
+    fn mlock_memory(&self, address: *mut c_void, size: usize) -> Result<(), AllocError> {
         if self.lock {
             let result = unsafe { mlock(address, size) };
             if likely!(result == 0) {
             } else if likely!(result == -1) {
                 Self::munmap_memory(Self::cast_address(address), size);
-                return Err(AllocErr);
+                return Err(AllocError);
             } else {
                 unreachable!()
             }
@@ -180,7 +180,7 @@ impl MemoryMapSource {
         memory_address: MemoryAddress,
         old_size: usize,
         new_size: usize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         #[cfg(target_os = "netbsd")]
         const MREMAP_MAYMOVE: i32 = 0;
 
@@ -193,7 +193,7 @@ impl MemoryMapSource {
             )
         };
         if unlikely!(result == MAP_FAILED) {
-            Err(AllocErr)
+            Err(AllocError)
         } else {
             Ok(Self::cast_address(result))
         }
@@ -206,7 +206,7 @@ impl MemoryMapSource {
         memory_address: MemoryAddress,
         old_size: usize,
         new_size: usize,
-    ) -> Result<MemoryAddress, AllocErr> {
+    ) -> Result<MemoryAddress, AllocError> {
         let new_memory_address = self.mmap_memory(new_size)?;
         unsafe {
             new_memory_address
